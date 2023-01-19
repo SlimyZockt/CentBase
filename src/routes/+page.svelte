@@ -4,6 +4,7 @@
   import { isOverlayOpen } from "../stores/OverlayStore";
 
   import "../app.css";
+  import { defaultColumns } from "../stores/TableStore";
 </script>
 
 
