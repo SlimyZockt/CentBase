@@ -5,12 +5,12 @@
     flexRender,
     getCoreRowModel,
   } from "@tanstack/svelte-table";
-  import {columnsStructure, COLUMN_TYPES_SCHEMA, COLUMN_TYPES_KEYS, defaultColumns, type COLUMN_TYPES_VAL} from '../stores/TableStore';
+  import {columnsData, COLUMN_TYPES_SCHEMA, COLUMN_TYPES_KEYS, defaultColumns, type COLUMN_TYPES_VAL} from '../stores/TableStore';
   import type {ColumnTypes} from '../stores/TableStore';
-
+  import z from "zod";
   import type { ColumnDef, TableOptions } from "@tanstack/svelte-table";
   import { writable } from "svelte/store";
-
+  import { get } from 'svelte/store';
   const defaultData: any[] = [];
 
 
@@ -23,8 +23,32 @@
 
   let table = createSvelteTable<{[key: string]: COLUMN_TYPES_VAL}>($options);
 
+  const get_component = (inputType: ColumnTypes) => {
+    const COMPONENTS = {
+      'Int': "IntField",
+      'Float': "FloatField",
+      'Bool': "BoolField",
+      'String': "StringField",
+      'Enum': "EnumField",
+      'File': "FileField",
+      'Image': "ImageField",
+      'Color': "ColorField",
+      'List': "ListField",
+      'Property': "PropertyField",
+
+    }
+    return COMPONENTS[inputType]
+  }
+
+  let input = ""
   defaultColumns.subscribe(val => {
-    $options.columns = val;
+    $options = {
+      data: [
+        get(columnsData),
+      ],
+      columns: val,
+      getCoreRowModel: getCoreRowModel(),
+    };
     table = createSvelteTable<{[key: string]: COLUMN_TYPES_VAL}>($options)
   })
 </script>
@@ -55,8 +79,7 @@
           {#each row.getVisibleCells() as cell}
             <td>
               <svelte:component
-                this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-                
+                this={ flexRender(cell.column.columnDef.cell, cell.getContext())}
               />
             </td>
           {/each}

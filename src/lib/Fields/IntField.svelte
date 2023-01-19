@@ -2,9 +2,10 @@
   import Field from "../../components/Field.svelte";
 
   export let config: {
-    min: Number,
-    max: Number,
-    step: Number
+    min?: Number,
+    max?: Number,
+    step?: Number
+    value?: Number
   }
 
 </script>

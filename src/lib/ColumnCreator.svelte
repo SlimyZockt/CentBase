@@ -1,11 +1,25 @@
 <script lang="ts">
   import {
-    columnsStructure,
     defaultColumns,
     COLUMN_TYPES_SCHEMA,
     COLUMN_TYPES_KEYS,
+    columnsData,
   } from "../stores/TableStore";
   import type { ColumnTypes } from "../stores/TableStore";
+
+  import IntField from "./Fields/IntField.svelte";
+  import FloatField from "./Fields/FloatField.svelte";
+  import BoolField from "./Fields/BoolField.svelte";
+  import StringField from "./Fields/StringField.svelte";
+  import EnumField from "./Fields/EnumField.svelte";
+  import FileField from "./Fields/FileField.svelte";
+  import ImageField from "./Fields/ImageField.svelte";
+  import ColorField from "./Fields/ColorField.svelte";
+  import ListField from "./Fields/ListField.svelte";
+  import PropertyField from "./Fields/PropertyField.svelte";
+
+
+  import { config } from "process";
 
   let columnName = "";
   let columnType: ColumnTypes;
@@ -15,26 +29,44 @@
 
   // const defaultColumns: ColumnDef<typeof $columnsStructure>[] = []
 
+  const get_component = (inputType: ColumnTypes) => {
+    const COMPONENTS = {
+      'Int': IntField,
+      'Float': FloatField,
+      'Bool': BoolField,
+      'String': StringField,
+      'Enum': EnumField,
+      'File': FileField,
+      'Image': ImageField,
+      'Color': ColorField,
+      'List': ListField,
+      'Property': PropertyField,
+
+    }
+    return COMPONENTS[inputType]
+  }
+
   let update_data = () => {
-    if (columnName == "" || columnName in $columnsStructure) {
+    if (columnName == "" || columnName in $columnsData) {
       validationErr = true;
       setTimeout(() => (validationErr = false), 700);
       return;
     }
 
-    $columnsStructure[columnName] = COLUMN_TYPES_SCHEMA[columnType];
+    $columnsData[columnName] = COLUMN_TYPES_SCHEMA[columnType];
     defaultColumns.set([
       ...$defaultColumns,
       {
         accessorKey: columnName,
-        cell: (info) => info.getValue(),
+        cell: (info) => get_component(columnType),
         footer: (info) => info.column.id,
+        
       },
     ]);
 
     creationSuccess = true;
     setTimeout(() => (creationSuccess = false), 700);
-    console.log($columnsStructure);
+    console.log($columnsData);
     console.log($defaultColumns);
   };
 </script>
@@ -58,7 +90,7 @@
       class="select select-bordered select-ghost w-full max-w-xs"
       bind:value={columnType}
     >
-      {#each COLUMN_TYPES_KEYS.options as ColumnType}
+      {#each COLUMN_TYPES_KEYS as ColumnType}
         <option>{ColumnType}</option>
       {/each}
     </select>
