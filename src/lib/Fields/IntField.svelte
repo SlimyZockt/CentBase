@@ -1,12 +1,10 @@
 <script lang="ts">
-  import Field from "../../components/Field.svelte";
-
-  export let config: {
-    min?: Number,
-    max?: Number,
-    step?: Number
-    value?: Number
-  }
+  // export let config: {
+  //   min?: Number,
+  //   max?: Number,
+  //   step?: Number
+  //   value?: Number
+  // }
 
 </script>
-<input type="number"/>
+<input type="number" class="input input-bordered bg-base-200"/>

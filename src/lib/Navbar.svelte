@@ -11,7 +11,6 @@
     <ul class="menu menu-horizontal px-1 justify-around ">
       <li><button class="btn mx-1">Save File</button></li>
       <li><button class="btn mx-1">Open File</button></li>
-      <li><button class="btn mx-1">Add Row</button></li>
       <li><button class="btn mx-1">Create New Cheat</button></li>
       <li> 
         <button

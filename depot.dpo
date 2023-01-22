@@ -1,0 +1,51 @@
+{
+    "sheets": [
+        {
+            "name": "newSheet",
+            "description": "description of what the sheet is",
+            "displayColumn": "id",
+            "guid": "dfcf69b9-b0b7-44f8-ae32-27da3810d0a2",
+            "columns": [
+                {
+                    "typeStr": "int",
+                    "guid": "3b459bbf-bb2a-424c-bd13-3e493078e0a1",
+                    "description": "int field",
+                    "name": "newInt",
+                    "min": -10000,
+                    "max": 100000,
+                    "defaultValue": 0,
+                    "iconName": "newInt",
+                    "configurable": {
+                        "name": "text",
+                        "description": "text",
+                        "min": "int",
+                        "max": "int",
+                        "defaultValue": "int"
+                    }
+                }
+            ],
+            "lines": [
+                {
+                    "guid": "f31e171e-aab5-4c30-b288-39417082e375",
+                    "id": "0",
+                    "newInt": 0
+                }
+            ],
+            "hidden": false,
+            "isProps": false,
+            "configurable": {
+                "name": "text",
+                "description": "text",
+                "displayColumn": "columnSelect@name",
+                "columnSelect@name@displayColumn": {
+                    "allowedTypes": [
+                        "int",
+                        "float",
+                        "text",
+                        "longtext"
+                    ]
+                }
+            }
+        }
+    ]
+}

@@ -18,8 +18,9 @@
   import ListField from "./Fields/ListField.svelte";
   import PropertyField from "./Fields/PropertyField.svelte";
 
-
   import { config } from "process";
+  import { get } from "svelte/store";
+	import FieldContainer from "./FieldContainer.svelte";
 
   let columnName = "";
   let columnType: ColumnTypes;
@@ -31,20 +32,21 @@
 
   const get_component = (inputType: ColumnTypes) => {
     const COMPONENTS = {
-      'Int': IntField,
-      'Float': FloatField,
-      'Bool': BoolField,
-      'String': StringField,
-      'Enum': EnumField,
-      'File': FileField,
-      'Image': ImageField,
-      'Color': ColorField,
-      'List': ListField,
-      'Property': PropertyField,
-
-    }
-    return COMPONENTS[inputType]
-  }
+      "Int": IntField,
+      "Float": FloatField,
+      "Bool": BoolField,
+      "String": StringField,
+      "Enum": EnumField,
+      "File": FileField,
+      "Image": ImageField,
+      "Color": ColorField,
+      "List": ListField,
+      "Property": PropertyField,
+    };
+    console.log(inputType);
+    console.log(COMPONENTS[inputType]);
+    return COMPONENTS[inputType];
+  };
 
   let update_data = () => {
     if (columnName == "" || columnName in $columnsData) {
@@ -53,14 +55,18 @@
       return;
     }
 
-    $columnsData[columnName] = COLUMN_TYPES_SCHEMA[columnType];
+
+    let temp = columnType
     defaultColumns.set([
-      ...$defaultColumns,
+      ...get(defaultColumns),
       {
         accessorKey: columnName,
-        cell: (info) => get_component(columnType),
-        footer: (info) => info.column.id,
-        
+        cell: (info) => FieldContainer,
+        meta: {
+          type: columnType,
+          name: columnName,
+          row: 0,
+        },
       },
     ]);
 

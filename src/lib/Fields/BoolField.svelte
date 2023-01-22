@@ -1,0 +1,1 @@
+<input type="checkbox" class="checkbox input-bordered bg-base-200 "/>

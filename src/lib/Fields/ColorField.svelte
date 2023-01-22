@@ -1,0 +1,1 @@
+<input type="color" class="input-bordered bg-base-200" />
