@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { ColumnTypes } from "src/stores/TableStore";
   export let type: ColumnTypes;
+  export let columnId: number;
+  export let rowId: number;
+  export let data: {};
 
   import IntField from "$lib/Fields/IntField.svelte";
   import FloatField from "$lib/Fields/FloatField.svelte";
@@ -34,5 +37,5 @@ const COMPONENTS = {
 
 
 <div>
-    <svelte:component this={COMPONENTS[type]}/>
+    <svelte:component this={COMPONENTS[type]} bind:data/>
 </div>

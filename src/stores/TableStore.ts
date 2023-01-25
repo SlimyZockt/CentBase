@@ -6,11 +6,6 @@ import { z } from "zod";
 export const columnsData: Writable<{ [key: string]: COLUMN_TYPES_VALUES }[]> = writable([]);
 export const defaultColumns: Writable<ColumnDef<{ [key: string]: COLUMN_TYPES_VALUES }>[]> = writable([]);
 
-type TupleUnion<U extends string, R extends string[] = []> = {
-    [S in U]: Exclude<U, S> extends never ? [...R, S] : TupleUnion<Exclude<U, S>, [...R, S]>;
-}[U] & string[];
-
-
 
 
 export const COLUMN_TYPES_SCHEMA = {
