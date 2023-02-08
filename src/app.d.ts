@@ -4,13 +4,13 @@
 import type { ColumnTypes } from "./stores/TableStore"
 
 // and what to do when importing types
-declare namespace App {}
+declare namespace App {
+
+}
 
 
 declare module '@tanstack/table-core' {
     interface ColumnMeta<TData extends RowData, TValue> {
         type: ColumnTypes
-        name: string
-        row: number,
     }
 }

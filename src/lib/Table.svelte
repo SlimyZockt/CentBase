@@ -6,44 +6,63 @@
 		getCoreRowModel
 	} from '@tanstack/svelte-table';
 	import {
-		columnsData,
-		COLUMN_TYPES_SCHEMA,
-		COLUMN_TYPES_KEYS,
-		defaultColumns
+		ColumnData,
+		typeSchema,
+		defaultColumns,
+		type Row,
+		type Column,
+		RowData
 	} from '../stores/TableStore';
-	import type { ColumnTypes, COLUMN_TYPES_VALUES } from '../stores/TableStore';
+	import type { ColumnTypes,  ColumnValueTypes} from '../stores/TableStore';
 	import type { ColumnDef, TableOptions } from '@tanstack/svelte-table';
 	import { writable } from 'svelte/store';
 	import { get } from 'svelte/store';
 
-	const options = writable<TableOptions<{ [key: string]: COLUMN_TYPES_VALUES }>>({
+	let rowCount = 0;
+
+	const options = writable<TableOptions<{ [key: string]: ColumnValueTypes }>>({
 		data: [],
 		columns: [],
 		getCoreRowModel: getCoreRowModel()
 	});
 
-	let table = createSvelteTable<{ [key: string]: COLUMN_TYPES_VALUES }>($options);
+	let table = createSvelteTable<{ [key: string]: ColumnValueTypes }>($options);
 
 	const addRow = () => {
-		let temp: { [key: string]: COLUMN_TYPES_VALUES } = {};
-		get(defaultColumns).forEach((cellDef) => {
-			temp[cellDef.meta?.name as string] = COLUMN_TYPES_SCHEMA[cellDef.meta?.type as ColumnTypes];
-		});
-		console.log(temp);
-		columnsData.set([...$columnsData, temp]);
+		const columnNames = get(ColumnData).map((column) => column.name);
+		const data: { [key: string]: ColumnValueTypes } = Object.fromEntries(
+			columnNames.map((name) => [
+				name,
+				$typeSchema[$ColumnData.filter((column) => column.name == name)[0].type]
+			])
+		);
+		const row: Row = {
+			id: rowCount,
+			uuid: rowCount,
+			data
+		};
+		RowData.set([...$RowData, row]);
+		rowCount += 1;
 	};
 
 	const update_data = () => {
 		$options = {
-			data: get(columnsData),
+			data: get(RowData).map((val) => val.data),
 			columns: get(defaultColumns),
 			getCoreRowModel: getCoreRowModel()
 		};
-		table = createSvelteTable<{ [key: string]: COLUMN_TYPES_VALUES }>($options);
+		table = createSvelteTable<{ [key: string]: ColumnValueTypes }>($options);
 	};
 
-	defaultColumns.subscribe(() => {update_data()});
-	columnsData.subscribe(() => {update_data()});
+	defaultColumns.subscribe(() => {
+		update_data();
+	});
+	RowData.subscribe(() => {
+		update_data();
+	});
+	ColumnData.subscribe(() => {
+		update_data();
+	});
 </script>
 
 <div class="overflow-x-auto">
@@ -70,7 +89,9 @@
 						<td>
 							<svelte:component
 								this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-								{...cell.column.columnDef.meta}
+								columnId={cell.column.columnDef.id}
+								rowId={rowCount}
+								type={cell.column.columnDef.meta?.type}
 							/>
 						</td>
 					{/each}
@@ -79,6 +100,12 @@
 			<tr>
 				<td>
 					<button class="btn" on:click={addRow}>New Row</button>
+					<button
+						class="btn"
+						on:click={() => {
+							console.log($RowData);
+						}}>Print data</button
+					>
 				</td>
 			</tr>
 		</tbody>

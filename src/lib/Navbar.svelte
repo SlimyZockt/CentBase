@@ -1,5 +1,4 @@
 <script>
-  import { Input } from "postcss";
   import { isOverlayOpen } from "../stores/OverlayStore";
 </script>
 
@@ -12,7 +11,7 @@
       <li><button class="btn mx-1">Save File</button></li>
       <li><button class="btn mx-1">Open File</button></li>
       <li><button class="btn mx-1">Create New Cheat</button></li>
-      <li> 
+      <li>
         <button
           on:click={() => {
             isOverlayOpen.set(true);
@@ -20,6 +19,5 @@
           class="btn-accent text-black mx-1">Create new Column</button
         >
       </li>
-    </ul>
   </div>
 </div>

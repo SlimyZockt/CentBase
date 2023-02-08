@@ -1,3 +1,5 @@
 <script lang="ts">
-export let data;
+	import type { ColumnTypesValue } from "src/stores/TableStore";
+    
+    export let data: ColumnTypesValue
 </script>

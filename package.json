@@ -16,6 +16,7 @@
     "@tanstack/svelte-table": "^8.7.6",
     "@tauri-apps/api": "^1.2.0",
     "daisyui": "^2.46.1",
+    "fp-ts": "^2.13.1",
     "zod": "^3.20.2"
   },
   "devDependencies": {
