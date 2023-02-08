@@ -1,33 +1,74 @@
 import type { ColumnDef } from "@tanstack/svelte-table";
-import { writable, type Writable } from "svelte/store";
-import { z } from "zod";
+import { readable, writable, type Writable } from "svelte/store";
 
 
-export const columnsData: Writable<{ [key: string]: COLUMN_TYPES_VALUES }[]> = writable([]);
-export const defaultColumns: Writable<ColumnDef<{ [key: string]: COLUMN_TYPES_VALUES }>[]> = writable([]);
+export const RowData: Writable<Row[]> = writable([]);
+export const ColumnData: Writable<Column[]> = writable([]);
+export const defaultColumns: Writable<ColumnDef<{ [key: string]: ColumnValueTypes }>[]> = writable([]);
+
+const TYPE_SCHEMA = {
+    Int: 0,
+    Float: 0,
+    Bool: false,
+    String: "",
+    Enum: "" as const,
+    File: "",
+    Image: "",
+    Color: {
+            r: 0,
+            g: 0,
+            b: 0,
+        },
+    List: [],
+    Property: [],
+}
+
+const DEFAULT_CONFIG = {
+    Int: {
+        max: Infinity,
+            min: -Infinity,
+            step: 1,
+        },
+        Float: {
+            max: Infinity,
+            min: -Infinity,
+            step: 'any' as "any" | number,
+        },
+    String: {
+            types: {
+                email: false,
+                url: false,
+                regex: false,
+                uuid: false,
+            },
+        },
+        Enum: {
+        possibleVal: [""]
+    }
+    
+}
+
+export const typeSchema = readable(TYPE_SCHEMA)
+export const defaultConfig = readable(DEFAULT_CONFIG)
 
 
-
-export const COLUMN_TYPES_SCHEMA = {
-    "Int": 0,
-    "Float": 0,
-    "Bool": false,
-    "String": "",
-    "Enum": [""] as const,
-    "File": "",
-    "Image": "",
-    "Color": {
-        r: 0,
-        g: 0,
-        b: 0,
-    },
-    "List": [],
-    "Property": [],
-};
-
-
-// export const temp = COLUMN_TYPES_KEYS.options.map(val => COLUMN_TYPES_SCHEMA[val])[0]
-export const COLUMN_TYPES_KEYS = Object.keys(COLUMN_TYPES_SCHEMA) as Array<keyof typeof COLUMN_TYPES_SCHEMA>;
-export type COLUMN_TYPES_VALUES = typeof COLUMN_TYPES_SCHEMA[keyof typeof COLUMN_TYPES_SCHEMA];
-
+export const COLUMN_TYPES_KEYS = Object.keys(TYPE_SCHEMA) as Array<keyof typeof TYPE_SCHEMA>;
 export type ColumnTypes = typeof COLUMN_TYPES_KEYS[0];
+export type ColumnValueTypes = typeof TYPE_SCHEMA[keyof typeof TYPE_SCHEMA];
+export type ConfigType = typeof DEFAULT_CONFIG[keyof typeof DEFAULT_CONFIG];
+
+export type Column = {
+    id: number
+    uuid: number
+    name: string
+    type: ColumnTypes
+    config?: ConfigType
+}
+
+export type Row = {
+    id: number
+    uuid: number
+    data: {
+        [key: string]: ColumnValueTypes
+    }
+}
