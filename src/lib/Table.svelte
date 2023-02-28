@@ -13,11 +13,13 @@
 		type Column,
 		RowData
 	} from '../stores/TableStore';
-	import type { ColumnTypes,  ColumnValueTypes} from '../stores/TableStore';
+	import type { ColumnTypes, ColumnValueTypes } from '../stores/TableStore';
 	import type { ColumnDef, TableOptions } from '@tanstack/svelte-table';
 	import { writable } from 'svelte/store';
 	import { get } from 'svelte/store';
-
+	import TableHeader from './TableHeader.svelte';
+	import { toEntries } from 'fp-ts/lib/ReadonlyRecord';
+	import { resetView } from '../stores/OverlayStore';
 	let rowCount = 0;
 
 	const options = writable<TableOptions<{ [key: string]: ColumnValueTypes }>>({
@@ -66,48 +68,50 @@
 </script>
 
 <div class="overflow-x-auto">
-	<table class="table w-full">
+	<table class="table w-full table-zebra">
 		<thead>
 			{#each $table.getHeaderGroups() as headerGroup}
-				<tr class="hover">
+				<tr class="hover felx">
 					{#each headerGroup.headers as header}
-						<th colSpan={header.colSpan}>
+						<th colSpan={header.colSpan} class="">
 							{#if !header.isPlaceholder}
-								<svelte:component
-									this={flexRender(header.column.columnDef.header, header.getContext())}
-								/>
+								<TableHeader columnUUID={header.column.columnDef.id}>
+									<svelte:component
+										this={flexRender(header.column.columnDef.header, header.getContext())}
+									/>
+								</TableHeader>
 							{/if}
 						</th>
 					{/each}
 				</tr>
 			{/each}
 		</thead>
-		<tbody>
-			{#each $table.getRowModel().rows as row}
-				<tr>
-					{#each row.getVisibleCells() as cell}
-						<td>
-							<svelte:component
-								this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-								columnId={cell.column.columnDef.id}
-								rowId={rowCount}
-								type={cell.column.columnDef.meta?.type}
-							/>
-						</td>
-					{/each}
-				</tr>
-			{/each}
-			<tr>
-				<td>
-					<button class="btn" on:click={addRow}>New Row</button>
-					<button
-						class="btn"
-						on:click={() => {
-							console.log($RowData);
-						}}>Print data</button
-					>
-				</td>
-			</tr>
-		</tbody>
+		{#key $resetView}
+			<tbody>
+				{#each $table.getRowModel().rows as row, i}
+					<tr>
+						{#each row.getVisibleCells() as cell}
+							<td>
+								<svelte:component
+									this={flexRender(cell.column.columnDef.cell, cell.getContext())}
+									columnUUID={cell.column.columnDef.id}
+									rowId={i}
+									type={cell.column.columnDef.meta?.type}
+								/>
+							</td>
+						{/each}
+					</tr>
+				{/each}
+			</tbody>
+		{/key}
 	</table>
+	<div>
+		<button class="btn" on:click={addRow}>New Row</button>
+		<button
+			class="btn"
+			on:click={() => {
+				console.log($RowData);
+			}}>Print data</button
+		>
+	</div>
 </div>

@@ -15,10 +15,10 @@ const TYPE_SCHEMA = {
     File: "",
     Image: "",
     Color: {
-            r: 0,
-            g: 0,
-            b: 0,
-        },
+        r: 0,
+        g: 0,
+        b: 0,
+    },
     List: [],
     Property: [],
 }
@@ -26,26 +26,21 @@ const TYPE_SCHEMA = {
 const DEFAULT_CONFIG = {
     Int: {
         max: Infinity,
-            min: -Infinity,
-            step: 1,
-        },
-        Float: {
-            max: Infinity,
-            min: -Infinity,
-            step: 'any' as "any" | number,
-        },
+        min: -Infinity,
+        step: 1,
+    },
+    Float: {
+        max: Infinity,
+        min: -Infinity,
+        step: 'any' as "any" | number,
+    },
     String: {
-            types: {
-                email: false,
-                url: false,
-                regex: false,
-                uuid: false,
-            },
-        },
-        Enum: {
+        validation: 'none' as 'email' | 'url' | 'regex' | 'uuid' | 'none'
+    },
+    Enum: {
         possibleVal: [""]
     }
-    
+
 }
 
 export const typeSchema = readable(TYPE_SCHEMA)
@@ -59,7 +54,7 @@ export type ConfigType = typeof DEFAULT_CONFIG[keyof typeof DEFAULT_CONFIG];
 
 export type Column = {
     id: number
-    uuid: number
+    uuid: string
     name: string
     type: ColumnTypes
     config?: ConfigType

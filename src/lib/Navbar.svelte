@@ -1,5 +1,5 @@
 <script>
-  import { isOverlayOpen } from "../stores/OverlayStore";
+  import { openColumnCreator } from "../stores/OverlayStore";
 </script>
 
 <div class="navbar bg-base-300">
@@ -13,9 +13,7 @@
       <li><button class="btn mx-1">Create New Cheat</button></li>
       <li>
         <button
-          on:click={() => {
-            isOverlayOpen.set(true);
-          }}
+          on:click={() => openColumnCreator()}
           class="btn-accent text-black mx-1">Create new Column</button
         >
       </li>
