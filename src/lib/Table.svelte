@@ -47,6 +47,15 @@
 		rowCount += 1;
 	};
 
+	const deleteRow = (id: number) => {
+		let filteredRow = get(RowData).filter((row) => row.id !== id);
+		filteredRow.forEach((row, i) => {
+			row.id = i
+		})
+		RowData.set(filteredRow);
+		resetView.set(!get(resetView));
+	};
+
 	const update_data = () => {
 		$options = {
 			data: get(RowData).map((val) => val.data),
@@ -83,6 +92,9 @@
 							{/if}
 						</th>
 					{/each}
+					{#if headerGroup.headers.length > 0}
+						<th class="w-0" />
+					{/if}
 				</tr>
 			{/each}
 		</thead>
@@ -100,6 +112,9 @@
 								/>
 							</td>
 						{/each}
+						<td>
+							<button class="btn btn-error max-w-max" on:click={() => deleteRow(i)}> X </button>
+						</td>
 					</tr>
 				{/each}
 			</tbody>

@@ -16,6 +16,7 @@
 	import FieldContainer from './FieldContainer.svelte';
 	import Input from './Input.svelte';
 	import { has, fromRecord } from 'fp-ts/ReadonlyRecord';
+	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const CONFIG_TEMPLATE = fromRecord(get(defaultConfig));
 
@@ -75,10 +76,8 @@
 		while (COLUMN_DATA.find((v) => v.uuid == newUuid) !== undefined) {
 			newUuid = crypto.randomUUID();
 		}
-
-		defaultColumns.set([
-			...get(defaultColumns),
-			{
+		
+		let tempColumnDef: ColumnDef<{[key: string]: ColumnValueTypes}> = {
 				accessorKey: columnName,
 				id: newUuid,
 				header: columnName,
@@ -87,6 +86,10 @@
 					type: columnType
 				}
 			}
+
+		defaultColumns.set([
+			...get(defaultColumns),
+			tempColumnDef
 		]);
 
 		let tempColumn: Column = {
