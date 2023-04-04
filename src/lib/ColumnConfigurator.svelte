@@ -1,21 +1,17 @@
 <script lang="ts">
-	import {
-		defaultColumns,
-		RowData,
-		typeSchema,
-		ColumnData,
-		COLUMN_TYPES_KEYS,
-		defaultConfig,
-		type ConfigType,
-		type ColumnValueTypes,
-		type Column
-	} from '../stores/TableStore';
-	import type { ColumnTypes } from '../stores/TableStore';
-	import { configuratorConfig, isOverlayOpen, resetView } from '../stores/OverlayStore';
-	import { get } from 'svelte/store';
 	import FieldContainer from './FieldContainer.svelte';
 	import Input from './Input.svelte';
+	import {
+		typeSchema,
+		COLUMN_TYPES_KEYS,
+		defaultConfig,
+		sheets,
+		getCurrentSheet
+	} from '../stores/TableStore';
+	import { configuratorConfig, isOverlayOpen, resetView } from '../stores/OverlayStore';
+	import { get } from 'svelte/store';
 	import { has, fromRecord } from 'fp-ts/ReadonlyRecord';
+	import type { ConfigType, ColumnValueTypes, Column, ColumnTypes } from '../stores/TableStore';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const CONFIG_TEMPLATE = fromRecord(get(defaultConfig));
@@ -42,7 +38,7 @@
 	let configSchema = getConfig(columnType);
 	let columnConfig: ConfigType = {} as ConfigType;
 
-	let viewState = false
+	let viewState = false;
 	// const defaultColumns: ColumnDef<typeof $columnsStructure>[] = []
 
 	let temp: ConfigType | {} = configSchema == undefined ? {} : configSchema;
@@ -65,34 +61,33 @@
 	};
 
 	const createColumn = () => {
-		if (columnName == '' || $ColumnData.filter((r) => r.name == columnName).length > 0) {
+		let sheet = getCurrentSheet();
+		if (sheet == undefined) return;
+
+		if (columnName == '' || sheet.columns.filter((r) => r.name == columnName).length > 0) {
 			validationErr = true;
 			setTimeout(() => (validationErr = false), 700);
 			return;
 		}
 
 		let newUuid = crypto.randomUUID();
-		const COLUMN_DATA = get(ColumnData);
-		while (COLUMN_DATA.find((v) => v.uuid == newUuid) !== undefined) {
+		while (sheet.columns.find((v) => v.uuid == newUuid) !== undefined) {
 			newUuid = crypto.randomUUID();
 		}
-		
-		let tempColumnDef: ColumnDef<{[key: string]: ColumnValueTypes}> = {
-				accessorKey: columnName,
-				id: newUuid,
-				header: columnName,
-				cell: (info) => FieldContainer,
-				meta: {
-					type: columnType
-				}
+
+		let newColumnDef: ColumnDef<{ [key: string]: ColumnValueTypes }> = {
+			accessorKey: columnName,
+			id: newUuid,
+			header: columnName,
+			cell: (info) => FieldContainer,
+			meta: {
+				type: columnType
 			}
+		};
 
-		defaultColumns.set([
-			...get(defaultColumns),
-			tempColumnDef
-		]);
+		sheet.columnDef.push(newColumnDef);
 
-		let tempColumn: Column = {
+		let newColumn: Column = {
 			id: columnCount,
 			uuid: newUuid,
 			config: columnConfig,
@@ -100,7 +95,9 @@
 			type: columnType
 		};
 
-		ColumnData.set([...COLUMN_DATA, tempColumn]);
+		sheet.columns.push(newColumn);
+
+		sheets.set([...get(sheets), sheet]);
 		columnCount += 1;
 		creationSuccess = true;
 		setTimeout(() => (creationSuccess = false), 700);
@@ -143,21 +140,21 @@
 	};
 
 	const delateColumn = () => {
-		let filteredColumn = get(ColumnData).filter((v) => v !== columnData);
-		let filteredColumnDef = get(defaultColumns).filter((v) => v.id !== columnData.uuid);
-		let filteredRowData = get(RowData);
+		let sheet = getCurrentSheet();
+		if (sheet == undefined) return;
 
-		filteredRowData.forEach((row) => {
+		sheet.columns = sheet.columns.filter((v) => v !== columnData);
+		sheet.columnDef = sheet.columnDef.filter((v) => v.id !== columnData.uuid);
+
+		sheet.rows.forEach((row) => {
 			delete row.data[columnData.name];
 		});
 
-		ColumnData.set(filteredColumn);
-		RowData.set(filteredRowData);
-		defaultColumns.set(filteredColumnDef);
+		sheets.set([...get(sheets), sheet]);
 		configuratorConfig.set(undefined);
 		isOverlayOpen.set(false);
 		viewState = !viewState;
-		resetView.set(viewState)
+		resetView.set(viewState);
 	};
 
 	configuratorConfig.subscribe((val) => {
@@ -178,7 +175,18 @@
 		columnType = 'Int';
 	});
 
+	function isCreationValid(columnName: string) {
+		let sheet = getCurrentSheet();
+		if (sheet == undefined) return false;
+
+		if (columnName == '' || sheet.columns.filter((r) => r.name == columnName).length > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	$: validateNewEnum(enumValue);
+	$: isCreationValidated = isCreationValid(columnName)
 </script>
 
 <div class="form-control">
@@ -262,6 +270,7 @@
 			class="btn btn-primary"
 			class:btn-error={validationErr}
 			class:btn-success={creationSuccess}
+			class:btn-disabled={!isCreationValidated}
 			on:click={createColumn}>Create</button
 		>
 	{:else}

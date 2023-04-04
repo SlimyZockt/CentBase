@@ -1,10 +1,19 @@
 import type { ColumnDef } from "@tanstack/svelte-table";
-import { readable, writable, type Writable } from "svelte/store";
+import { get, readable, writable, type Writable } from "svelte/store";
 
+export const activeSheetUUID = writable("")
+export const sheets: Writable<Sheet[]> = writable([]);
 
-export const RowData: Writable<Row[]> = writable([]);
-export const ColumnData: Writable<Column[]> = writable([]);
-export const defaultColumns: Writable<ColumnDef<{ [key: string]: ColumnValueTypes }>[]> = writable([]);
+export const updateSheets = (sheet: Sheet) => {
+    get(sheets).filter(s => s.uuid !== sheet.uuid);
+    sheets.set([...get(sheets), sheet]);
+};
+export const getCurrentSheet = () => {
+    return get(sheets).find(s => s.uuid === get(activeSheetUUID));
+};
+// export const RowData: Writable<Row[]> = writable([]);
+// export const ColumnData: Writable<Column[]> = writable([]);
+// export const defaultColumns: Writable<ColumnDef<{ [key: string]: ColumnValueTypes }>[]> = writable([]);
 
 const TYPE_SCHEMA = {
     Int: 0,
@@ -62,8 +71,16 @@ export type Column = {
 
 export type Row = {
     id: number
-    uuid: number
+    uuid: string
     data: {
         [key: string]: ColumnValueTypes
     }
+}
+
+export type Sheet = {
+    uuid: string,
+    id: string,
+    rows: Row[],
+    columns: Column[],
+    columnDef: ColumnDef<{ [key: string]: ColumnValueTypes }>[]
 }

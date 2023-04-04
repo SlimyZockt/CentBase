@@ -1,15 +1,16 @@
 <script lang="ts">
-  import type { ColumnTypes, ColumnValueTypes, Row } from "src/stores/TableStore";
-  import {RowData, typeSchema, ColumnData } from "../stores/TableStore";
+  import {getCurrentSheet, typeSchema, activeSheetUUID, updateSheets } from "../stores/TableStore";
+  import type {ColumnTypes, ColumnValueTypes, Row  } from "../stores/TableStore";
 	import Input from "./Input.svelte";
-	import { convertIntoInputType } from "./TypeConvering";
-	import { get } from "svelte/store";
+	import { convertIntoInputType } from "./TypeConverting";
 	import { onMount } from "svelte";
   export let type: ColumnTypes;
   export let rowId: number;
   export let columnUUID: string;
 
-  let column = $ColumnData.find(c => c.uuid == columnUUID);
+  let sheet = getCurrentSheet();
+  
+  let column = sheet?.columns.find(c => c.uuid == columnUUID);
 
   // let data = row.data[columnId];
   let data: ColumnValueTypes | undefined;
@@ -19,20 +20,22 @@
   const CONFIG = column === undefined ? undefined: column.config;
 
   const updateData = (data: ColumnValueTypes | undefined) => {
-    let row = $RowData.find(r => r.id == rowId)
+    let row = sheet?.rows.find(r => r.id == rowId);
 
-    if (data === undefined || column === undefined || column.name === undefined || row === undefined) return;
+    if (data === undefined || column === undefined || row === undefined) return;
     row.data[column.name] = data
 
 
-    let newRowData = get(RowData).map((r) => {
+    let rowsCopy = sheet?.rows.map((r) => {
       if (columnUUID in r.data && row !== undefined) {
         return row;
       }
-      return r
+      return r;
     })
-    if (newRowData == undefined) return;
-    RowData.set(newRowData);
+    if (rowsCopy === undefined || sheet === undefined) return;
+
+    sheet.rows = rowsCopy;
+    updateSheets(sheet);
   }
 
   $: updateData(data)
@@ -40,7 +43,7 @@
 
   onMount(() => {
     if (column === undefined) return;
-    let cachedRow = $RowData.find(r => r.id == rowId);
+    let cachedRow = sheet?.rows.find(r => r.id == rowId);
     if (cachedRow === undefined) return;
     data = cachedRow.data[column.name];
   })

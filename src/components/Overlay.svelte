@@ -1,7 +1,12 @@
 <script lang="ts">
-  import { isOverlayOpen } from "../stores/OverlayStore";
+  import { isOverlayOpen, overlayMode } from "../stores/OverlayStore";
 
   export let title: string;
+
+  function closeOverlay() {
+    isOverlayOpen.set(false);
+    overlayMode.set("NONE");
+  }
 </script>
 
 <input type="button" class="btn modal-toggle" id="my-modal"/>

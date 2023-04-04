@@ -1,9 +1,7 @@
 <script lang="ts">
 	import type { ColumnValueTypes, ConfigType, defaultConfig } from '../stores/TableStore';
-	import { createEventDispatcher } from 'svelte';
-	import { has } from 'fp-ts/lib/ReadonlyRecord';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { z } from 'zod';
-	import Table from './Table.svelte';
 
 	type Config = {
 		number?: {
@@ -23,13 +21,10 @@
 	export let type: 'color' | 'checkbox' | 'file' | 'image' | 'text' | 'number' | 'enum';
 	export let config: Config[keyof Config];
 	export let value: ColumnValueTypes | undefined = undefined;
-
 	export let inputValue = '';
-	export let checked = false
+	export let checked = false;
 
-	$: validateInput(inputValue, checked);
-
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher<{change: ColumnValueTypes | undefined}>();
 
 	let enumValue: string = '';
 	let validate: boolean = true;
@@ -61,7 +56,7 @@
 					break;
 			}
 			return temp;
-		}45
+		}
 		// else if ('possibleVal' in config) {
 		//     z.enum(config.possibleVal, {})
 		// }
@@ -115,8 +110,26 @@
 			validate = !config.possibleVal.includes(enumValue);
 		}
 
-		dispatch('change', { value: value });
+		dispatch('change', value);
 	};
+
+	const defaultValue  = (inputType: typeof type) => {
+		switch (inputType) {
+			case 'checkbox': return false
+			case 'color': return '#000000'
+			case 'enum': return config !== undefined  && 'possibleVal' in config? config.possibleVal[0] : undefined
+			case 'number': return '0'
+			case 'text': return ''
+			default: return '0';
+		}
+	}
+
+	$: validateInput(inputValue, checked);
+
+	onMount(() => {
+		inputValue = `${defaultValue(type)}`;
+	})
+
 </script>
 
 {#if type == 'checkbox'}
