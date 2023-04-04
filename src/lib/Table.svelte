@@ -6,20 +6,28 @@
 		getCoreRowModel
 	} from '@tanstack/svelte-table';
 	import {
-		ColumnData,
 		typeSchema,
-		defaultColumns,
+		sheets,
 		type Row,
 		type Column,
-		RowData
+		activeSheetUUID,
+		type Sheet,
+		updateSheets,
 	} from '../stores/TableStore';
 	import type { ColumnTypes, ColumnValueTypes } from '../stores/TableStore';
 	import type { ColumnDef, TableOptions } from '@tanstack/svelte-table';
 	import { writable } from 'svelte/store';
 	import { get } from 'svelte/store';
 	import TableHeader from './TableHeader.svelte';
-	import { toEntries } from 'fp-ts/lib/ReadonlyRecord';
 	import { resetView } from '../stores/OverlayStore';
+
+	let sheetName = get(activeSheetUUID);
+	activeSheetUUID.subscribe((v) => sheetName = v)
+
+
+	$: sheet = get(sheets).find(s => s.uuid === sheetName);
+
+
 	let rowCount = 0;
 
 	const options = writable<TableOptions<{ [key: string]: ColumnValueTypes }>>({
@@ -31,49 +39,58 @@
 	let table = createSvelteTable<{ [key: string]: ColumnValueTypes }>($options);
 
 	const addRow = () => {
-		const columnNames = get(ColumnData).map((column) => column.name);
+		if (sheet === undefined) return;
+		const columnNames = sheet.columns.map((column) => column.name);
 		const data: { [key: string]: ColumnValueTypes } = Object.fromEntries(
 			columnNames.map((name) => [
 				name,
-				$typeSchema[$ColumnData.filter((column) => column.name == name)[0].type]
+				$typeSchema[(sheet as Sheet).columns.filter((column) => column.name === name)[0].type]
 			])
 		);
+
+		let newUuid = crypto.randomUUID();
+		while (sheet.rows.find((v) => v.uuid === newUuid) !== undefined) {
+			newUuid = crypto.randomUUID();
+		}
+
+
 		const row: Row = {
 			id: rowCount,
-			uuid: rowCount,
+			uuid: newUuid,
 			data
 		};
-		RowData.set([...$RowData, row]);
+		sheet.rows = [...sheet.rows, row];
+		updateSheets(sheet);
 		rowCount += 1;
 	};
 
 	const deleteRow = (id: number) => {
-		let filteredRow = get(RowData).filter((row) => row.id !== id);
-		filteredRow.forEach((row, i) => {
+		if (sheet === undefined) return;
+		let newRow = sheet.rows.filter((row) => row.id !== id);
+		newRow.forEach((row, i) => {
 			row.id = i
 		})
-		RowData.set(filteredRow);
+		sheet.rows = newRow;
+		updateSheets(sheet);
 		resetView.set(!get(resetView));
+		rowCount -= 1;
 	};
 
-	const update_data = () => {
+	const updateData = () => {
+		if (sheet === undefined) return;
 		$options = {
-			data: get(RowData).map((val) => val.data),
-			columns: get(defaultColumns),
+			data: sheet.rows.map((val) => val.data),
+			columns: sheet.columnDef,
 			getCoreRowModel: getCoreRowModel()
 		};
 		table = createSvelteTable<{ [key: string]: ColumnValueTypes }>($options);
 	};
 
-	defaultColumns.subscribe(() => {
-		update_data();
+	sheets.subscribe(() => {
+		updateData();
 	});
-	RowData.subscribe(() => {
-		update_data();
-	});
-	ColumnData.subscribe(() => {
-		update_data();
-	});
+
+	$: activeSheetUUID.set(sheetName);
 </script>
 
 <div class="overflow-x-auto">
@@ -121,12 +138,12 @@
 		{/key}
 	</table>
 	<div>
+		<br/>
 		<button class="btn" on:click={addRow}>New Row</button>
-		<button
-			class="btn"
-			on:click={() => {
-				console.log($RowData);
-			}}>Print data</button
-		>
+		<br/>
+			<h5>raw sheet data: </h5>
+			{
+				JSON.stringify(sheet)
+			}
 	</div>
 </div>
