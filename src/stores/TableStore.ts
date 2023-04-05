@@ -5,7 +5,7 @@ export const activeSheetUUID = writable("")
 export const sheets: Writable<Sheet[]> = writable([]);
 
 export const updateSheets = (sheet: Sheet) => {
-    get(sheets).filter(s => s.uuid !== sheet.uuid);
+    sheets.update(sheets => sheets.filter(s => s.uuid !== sheet.uuid))
     sheets.set([...get(sheets), sheet]);
 };
 export const getCurrentSheet = () => {

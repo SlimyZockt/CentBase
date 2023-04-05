@@ -6,7 +6,9 @@
 		COLUMN_TYPES_KEYS,
 		defaultConfig,
 		sheets,
-		getCurrentSheet
+		getCurrentSheet,
+		updateSheets
+
 	} from '../stores/TableStore';
 	import { configuratorConfig, isOverlayOpen, resetView } from '../stores/OverlayStore';
 	import { get } from 'svelte/store';
@@ -31,7 +33,6 @@
 	let columnName = '';
 	let columnType: ColumnTypes = 'Int';
 
-	let validationErr = false;
 	let creationSuccess = false;
 	let isNewEnumValid = true;
 
@@ -64,12 +65,6 @@
 		let sheet = getCurrentSheet();
 		if (sheet == undefined) return;
 
-		if (columnName == '' || sheet.columns.filter((r) => r.name == columnName).length > 0) {
-			validationErr = true;
-			setTimeout(() => (validationErr = false), 700);
-			return;
-		}
-
 		let newUuid = crypto.randomUUID();
 		while (sheet.columns.find((v) => v.uuid == newUuid) !== undefined) {
 			newUuid = crypto.randomUUID();
@@ -97,7 +92,7 @@
 
 		sheet.columns.push(newColumn);
 
-		sheets.set([...get(sheets), sheet]);
+		updateSheets(sheet);
 		columnCount += 1;
 		creationSuccess = true;
 		setTimeout(() => (creationSuccess = false), 700);
@@ -150,7 +145,7 @@
 			delete row.data[columnData.name];
 		});
 
-		sheets.set([...get(sheets), sheet]);
+		updateSheets(sheet);
 		configuratorConfig.set(undefined);
 		isOverlayOpen.set(false);
 		viewState = !viewState;
@@ -175,14 +170,15 @@
 		columnType = 'Int';
 	});
 
-	function isCreationValid(columnName: string) {
+	const isCreationValid = (columnName: string) => {
 		let sheet = getCurrentSheet();
 		if (sheet == undefined) return false;
+		console.log(columnName);
 
-		if (columnName == '' || sheet.columns.filter((r) => r.name == columnName).length > 0) {
-			return true;
+		if (columnName === '' || sheet.columns.find((c) => c.name === columnName) !== undefined) {
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	$: validateNewEnum(enumValue);
@@ -268,7 +264,6 @@
 	{#if configurationMode == 'create'}
 		<button
 			class="btn btn-primary"
-			class:btn-error={validationErr}
 			class:btn-success={creationSuccess}
 			class:btn-disabled={!isCreationValidated}
 			on:click={createColumn}>Create</button

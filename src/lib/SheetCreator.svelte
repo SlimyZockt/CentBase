@@ -1,32 +1,31 @@
 <script lang="ts">
-	import { activeSheetUUID, sheets } from '../stores/TableStore';
+	import { activeSheetUUID, sheets, updateSheets } from '../stores/TableStore';
 	import { get } from 'svelte/store';
 
 	let sheetName = '';
 
-	$: validation = ((sheetName) => {
+	$: validation = ((id: string) => {
+		console.log(sheetName);
 		let sheetsCache = get(sheets);
-		return sheetsCache.find((s) => s.id === sheetName) === undefined ? true : false;
+		return sheetsCache.find((s) => s.id === id) === undefined ? true : false;
 	})(sheetName);
 
-	function createSheet() {
+	const createSheet = () => {
 		let sheetsCache = get(sheets);
 		let uuid = crypto.randomUUID();
 		while (sheetsCache.find((s) => s.uuid === uuid) !== undefined) {
 			uuid = crypto.randomUUID();
 		}
 
-		activeSheetUUID.set('1111-1111-1111');
-		sheets.set([
-			...get(sheets),
-			{
+		activeSheetUUID.set(uuid);
+		updateSheets({
 				uuid,
 				id: sheetName,
 				rows: [],
 				columns: [],
 				columnDef: []
-			}
-		]);
+			})
+		sheetName = "";
 	}
 </script>
 

@@ -21,7 +21,7 @@
 	export let type: 'color' | 'checkbox' | 'file' | 'image' | 'text' | 'number' | 'enum';
 	export let config: Config[keyof Config];
 	export let value: ColumnValueTypes | undefined = undefined;
-	export let inputValue = '';
+	export let inputValue = `${defaultValue(type)}`;
 	export let checked = false;
 
 	const dispatch = createEventDispatcher<{change: ColumnValueTypes | undefined}>();
@@ -113,7 +113,7 @@
 		dispatch('change', value);
 	};
 
-	const defaultValue  = (inputType: typeof type) => {
+	function defaultValue(inputType: typeof type) {
 		switch (inputType) {
 			case 'checkbox': return false
 			case 'color': return '#000000'
@@ -125,11 +125,6 @@
 	}
 
 	$: validateInput(inputValue, checked);
-
-	onMount(() => {
-		inputValue = `${defaultValue(type)}`;
-	})
-
 </script>
 
 {#if type == 'checkbox'}

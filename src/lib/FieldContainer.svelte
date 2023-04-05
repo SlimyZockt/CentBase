@@ -38,15 +38,14 @@
     updateSheets(sheet);
   }
 
-  $: updateData(data)
-
+  $: updateData(data);
 
   onMount(() => {
     if (column === undefined) return;
     let cachedRow = sheet?.rows.find(r => r.id == rowId);
     if (cachedRow === undefined) return;
     data = cachedRow.data[column.name];
-  })
+  });
 </script>
 
 <div class="flex justify-center">
