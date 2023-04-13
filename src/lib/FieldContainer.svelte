@@ -3,7 +3,6 @@
   import type {ColumnTypes, ColumnValueTypes, Row  } from "../stores/TableStore";
 	import Input from "./Input.svelte";
 	import { convertIntoInputType } from "./TypeConverting";
-	import { onMount } from "svelte";
   export let type: ColumnTypes;
   export let rowId: number;
   export let columnUUID: string;
@@ -44,5 +43,5 @@
 </script>
 
 <div class="flex justify-center">
-  <Input type={convertIntoInputType(type)} config={CONFIG} inputValue={String(data)} on:change={e => data = e.detail} checked={Boolean(data)}></Input>
+  <Input type={convertIntoInputType(type)} config={CONFIG} inputValue={String(data)} on:change={e => updateData(e.detail)} checked={Boolean(data)}></Input>
 </div>

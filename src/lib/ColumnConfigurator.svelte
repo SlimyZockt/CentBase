@@ -63,7 +63,7 @@
 
 	const createColumn = () => {
 		let sheet = getCurrentSheet();
-		if (sheet == undefined) return;
+		if (sheet === undefined) return;
 
 		let newUuid = crypto.randomUUID();
 		while (sheet.columns.find((v) => v.uuid == newUuid) !== undefined) {

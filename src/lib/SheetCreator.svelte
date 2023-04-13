@@ -13,10 +13,11 @@
 	const createSheet = () => {
 		let sheetsCache = get(sheets);
 		let uuid = crypto.randomUUID();
+
 		while (sheetsCache.find((s) => s.uuid === uuid) !== undefined) {
 			uuid = crypto.randomUUID();
 		}
-		
+
 		activeSheetUUID.set(uuid);
 		updateSheets({
 				uuid,

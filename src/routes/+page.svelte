@@ -1,5 +1,5 @@
 <script lang="ts">
-  	import Footer from '$lib/Footer.svelte';
+	import Footer from '$lib/Footer.svelte';
 
 	import Navbar from '$lib/Navbar.svelte';
 	import Table from '$lib/Table.svelte';
@@ -19,33 +19,45 @@
 		}
 	};
 
-	sheets.subscribe( _ => {
+	sheets.subscribe((_) => {
 		let cachedSheet = getCurrentSheet();
 		if (cachedSheet !== undefined) {
 			sheet = cachedSheet;
 		}
 	});
-
 </script>
 
 <div class="min-h-screen grid grid-rows-[auto_1fr_auto]">
 	<Navbar />
-	<div class="bg-base-200">
+	<div class="bg-base-200 grid grid-rows-[auto_1fr_auto] ">
 		{#if $sheets.length > 0}
-			<div class="tabs bg-neutral flex justify-center">
+			<div class="tabs bg-neutral flex justify-center max-h-fit">
 				{#each $sheets as sheet}
 					<!-- svelte-ignore a11y-invalid-attribute -->
-					<button class="tab tab-bordered" class:tab-active={sheet.uuid === $activeSheetUUID} on:click={() => updateTable(sheet.uuid)}
+					<button
+						class="tab tab-bordered"
+						class:tab-active={sheet.uuid === $activeSheetUUID}
+						on:click={() => updateTable(sheet.uuid)}
 						>{sheet.id}
 					</button>
 				{/each}
 			</div>
-				{#key sheet}
-				<div class="">
-					<Table sheet={sheet}/>
+			{#key sheet}
+				<Table {sheet} />
+				<div class="m-1 inline-grid grid-cols-[1fr_auto_auto_auto_1fr] gap-1">
+					<br/>
+					<RowCreator {sheet} count={1}>
+						Add Row
+					</RowCreator>
+					<RowCreator {sheet} count={5}>
+						Add 5 Rows
+					</RowCreator>
+					<RowCreator {sheet} count={10}>
+						Add 10 Rows
+					</RowCreator>
+					<br/>
 				</div>
-					<RowCreator sheet={sheet}/>
-				{/key}
+			{/key}
 		{:else}
 			<div class="hero min-h-full">
 				<p class="text-center text-base text-base-content ">missing sheet</p>

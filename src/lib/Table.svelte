@@ -1,43 +1,29 @@
 <script lang="ts">
 	import {
-		createColumnHelper,
 		createSvelteTable,
 		flexRender,
 		getCoreRowModel
 	} from '@tanstack/svelte-table';
 	import {
-		typeSchema,
-		sheets,
-		type Row,
-		type Column,
-		activeSheetUUID,
 		type Sheet,
 		updateSheets
 	} from '../stores/TableStore';
 	import type { ColumnTypes, ColumnValueTypes } from '../stores/TableStore';
 	import type { ColumnDef, TableOptions } from '@tanstack/svelte-table';
 	import { writable } from 'svelte/store';
-	import { get } from 'svelte/store';
 	import TableHeader from './TableHeader.svelte';
-	import { onMount } from 'svelte';
-
 
 	export let sheet: Sheet;
 
 	let rowCount = 0;
 
-	const DATA = Object.create(sheet.rows.map(row => row.data));
-
 	const options = writable<TableOptions<{ [key: string]: ColumnValueTypes }>>({
-		data: DATA,
+		data: sheet.rows.map(row => row.data),
 		columns: sheet.columnDef,
 		getCoreRowModel: getCoreRowModel()
 	});
 
 	const table = createSvelteTable<{ [key: string]: ColumnValueTypes }>($options);
-
-
-	// onMount(() => console.log(sheet.rows.map(row => row.data)));
 
 	const deleteRow = (id: number) => {
 		if (sheet === undefined) return;
@@ -51,7 +37,7 @@
 	};
 </script>
 
-<div class="overflow-x-auto">
+<div class="overflow-auto">
 	<table class="table w-full table-zebra">
 		<thead>
 			{#each $table.getHeaderGroups() as headerGroup}
@@ -74,27 +60,23 @@
 			{/each}
 		</thead>
 		<tbody>
-			{#each $table.getRowModel().rows as row, i}
+				{#each $table.getRowModel().rows as row, i}
 				<tr>
 					{#each row.getVisibleCells() as cell}
-						<td>
-							<svelte:component
-								this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-								columnUUID={cell.column.columnDef.id}
-								rowId={i}
-								type={cell.column.columnDef.meta?.type}
-							/>
-						</td>
+					<td>
+						<svelte:component
+						this={flexRender(cell.column.columnDef.cell, cell.getContext())}
+						columnUUID={cell.column.columnDef.id}
+						rowId={i}
+						type={cell.column.columnDef.meta?.type}
+						/>
+					</td>
 					{/each}
 					<td>
 						<button class="btn btn-error max-w-max" on:click={_ => deleteRow(i)}> X </button>
 					</td>
 				</tr>
-			{/each}
+				{/each}
 		</tbody>
 	</table>
-	<div>
-		<h5>raw sheet data:</h5>
-		{JSON.stringify(sheet)}
-	</div>
 </div>
