@@ -7,23 +7,19 @@
 
 	import '../app.css';
 	import { activeSheetUUID, sheets, type Sheet, getCurrentSheet } from '../stores/TableStore';
+	import RowCreator from '$lib/RowCreator.svelte';
 
-	let uuid = "";
 	let sheet: Sheet;
 
 	const updateTable = (sheetUUID: string) => {
 		activeSheetUUID.set(sheetUUID);
-	};
-
-	activeSheetUUID.subscribe(u => {
-		uuid = u
 		let cachedSheet = getCurrentSheet();
 		if (cachedSheet !== undefined) {
 			sheet = cachedSheet;
 		}
-	});
+	};
 
-	sheets.subscribe(() => {
+	sheets.subscribe( _ => {
 		let cachedSheet = getCurrentSheet();
 		if (cachedSheet !== undefined) {
 			sheet = cachedSheet;
@@ -39,16 +35,17 @@
 			<div class="tabs bg-neutral flex justify-center">
 				{#each $sheets as sheet}
 					<!-- svelte-ignore a11y-invalid-attribute -->
-					<button class="tab tab-bordered" class:tab-active={sheet.uuid === uuid} on:click={() => updateTable(sheet.uuid)}
+					<button class="tab tab-bordered" class:tab-active={sheet.uuid === $activeSheetUUID} on:click={() => updateTable(sheet.uuid)}
 						>{sheet.id}
 					</button>
 				{/each}
 			</div>
-			{#key uuid}
-			{#key sheet}
-				<Table sheetUUID={uuid} sheet={sheet}/>
-			{/key}
-			{/key}
+				{#key sheet}
+				<div class="">
+					<Table sheet={sheet}/>
+				</div>
+					<RowCreator sheet={sheet}/>
+				{/key}
 		{:else}
 			<div class="hero min-h-full">
 				<p class="text-center text-base text-base-content ">missing sheet</p>
