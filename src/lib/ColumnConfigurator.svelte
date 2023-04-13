@@ -10,7 +10,7 @@
 		updateSheets
 
 	} from '../stores/TableStore';
-	import { configuratorConfig, isOverlayOpen, resetView } from '../stores/OverlayStore';
+	import { configuratorConfig, isOverlayOpen } from '../stores/OverlayStore';
 	import { get } from 'svelte/store';
 	import { has, fromRecord } from 'fp-ts/ReadonlyRecord';
 	import type { ConfigType, ColumnValueTypes, Column, ColumnTypes } from '../stores/TableStore';
@@ -149,7 +149,6 @@
 		configuratorConfig.set(undefined);
 		isOverlayOpen.set(false);
 		viewState = !viewState;
-		resetView.set(viewState);
 	};
 
 	configuratorConfig.subscribe((val) => {
@@ -272,7 +271,6 @@
 		<div class="inline-flex">
 			<button
 				class="btn btn-primary flex-grow"
-				class:btn-error={validationErr}
 				class:btn-success={creationSuccess}
 				on:click={createColumn}>Edit</button
 			>

@@ -12,10 +12,10 @@
   
   let column = sheet?.columns.find(c => c.uuid == columnUUID);
 
+  let row = sheet?.rows.find(r => r.id == rowId);
+
   // let data = row.data[columnId];
-  let data: ColumnValueTypes | undefined;
-
-
+  let data: ColumnValueTypes | undefined = column === undefined ? undefined : row?.data[column?.name];
 
   const CONFIG = column === undefined ? undefined: column.config;
 
@@ -23,7 +23,7 @@
     let row = sheet?.rows.find(r => r.id == rowId);
 
     if (data === undefined || column === undefined || row === undefined) return;
-    row.data[column.name] = data
+    row.data[column.name] = data;
 
 
     let rowsCopy = sheet?.rows.map((r) => {
@@ -38,16 +38,11 @@
     updateSheets(sheet);
   }
 
-  $: updateData(data);
+  // $: updateData(data);
 
-  onMount(() => {
-    if (column === undefined) return;
-    let cachedRow = sheet?.rows.find(r => r.id == rowId);
-    if (cachedRow === undefined) return;
-    data = cachedRow.data[column.name];
-  });
+
 </script>
 
 <div class="flex justify-center">
-  <Input type={convertIntoInputType(type)} config={CONFIG} bind:value={data} inputValue={String(data)} checked={Boolean(data)}></Input>
+  <Input type={convertIntoInputType(type)} config={CONFIG} inputValue={String(data)} on:change={e => data = e.detail} checked={Boolean(data)}></Input>
 </div>

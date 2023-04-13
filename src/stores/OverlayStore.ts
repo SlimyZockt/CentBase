@@ -6,7 +6,6 @@ type OVERLAY_MODES = "COLUMN" | "SHEET" | "NONE";
 
 export const isOverlayOpen = writable(false);
 export const configuratorConfig = writable<Column | undefined>();
-export const resetView = writable(false);
 export const overlayMode = writable<OVERLAY_MODES>("COLUMN");
 
 export const openColumnCreator = () => {

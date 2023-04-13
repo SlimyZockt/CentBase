@@ -19,72 +19,36 @@
 	import { writable } from 'svelte/store';
 	import { get } from 'svelte/store';
 	import TableHeader from './TableHeader.svelte';
-	import { resetView } from '../stores/OverlayStore';
+	import { onMount } from 'svelte';
 
-	export let sheetUUID = get(activeSheetUUID);
-	activeSheetUUID.subscribe((v) => (sheetUUID = v));
 
 	export let sheet: Sheet;
 
 	let rowCount = 0;
 
+	const DATA = Object.create(sheet.rows.map(row => row.data));
+
 	const options = writable<TableOptions<{ [key: string]: ColumnValueTypes }>>({
-		data: sheet.rows.map((val) => val.data),
+		data: DATA,
 		columns: sheet.columnDef,
 		getCoreRowModel: getCoreRowModel()
 	});
 
-	const table = createSvelteTable<{ [key: string]: ColumnValueTypes }>(options);
+	const table = createSvelteTable<{ [key: string]: ColumnValueTypes }>($options);
 
-	const addRow = () => {
-		const columnNames = sheet.columns.map((column) => column.name);
-		if (columnNames.length === 0) return;
-		const data: { [key: string]: ColumnValueTypes } = Object.fromEntries(
-			columnNames.map((name) => [
-				name,
-				$typeSchema[(sheet as Sheet).columns.filter((column) => column.name === name)[0].type]
-			])
-		);
 
-		let newUuid = crypto.randomUUID();
-		while (sheet.rows.find((v) => v.uuid === newUuid) !== undefined) {
-			newUuid = crypto.randomUUID();
-		}
-
-		const row: Row = {
-			id: rowCount,
-			uuid: newUuid,
-			data
-		};
-		sheet.rows = [...sheet.rows, row];
-		updateSheets(sheet);
-		rowCount += 1;
-	};
+	// onMount(() => console.log(sheet.rows.map(row => row.data)));
 
 	const deleteRow = (id: number) => {
+		if (sheet === undefined) return;
 		let newRow = sheet.rows.filter((row) => row.id !== id);
 		newRow.forEach((row, i) => {
 			row.id = i;
 		});
 		sheet.rows = newRow;
 		updateSheets(sheet);
-		resetView.set(!get(resetView));
 		rowCount -= 1;
 	};
-
-	const updateData = () => {
-		options.set({
-			data: sheet.rows.map((val) => val.data),
-			columns: sheet.columnDef,
-			getCoreRowModel: getCoreRowModel()
-		});
-	};
-
-	sheets.subscribe(() => {
-		updateData();
-	});
-
-	$: activeSheetUUID.set(sheetUUID);
 </script>
 
 <div class="overflow-x-auto">
@@ -109,32 +73,27 @@
 				</tr>
 			{/each}
 		</thead>
-		{#key $resetView}
-			<tbody>
-				{#each $table.getRowModel().rows as row, i}
-					<tr>
-						{#each row.getVisibleCells() as cell}
-							<td>
-								<svelte:component
-									this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-									columnUUID={cell.column.columnDef.id}
-									rowId={i}
-									type={cell.column.columnDef.meta?.type}
-								/>
-							</td>
-						{/each}
+		<tbody>
+			{#each $table.getRowModel().rows as row, i}
+				<tr>
+					{#each row.getVisibleCells() as cell}
 						<td>
-							<button class="btn btn-error max-w-max" on:click={() => deleteRow(i)}> X </button>
+							<svelte:component
+								this={flexRender(cell.column.columnDef.cell, cell.getContext())}
+								columnUUID={cell.column.columnDef.id}
+								rowId={i}
+								type={cell.column.columnDef.meta?.type}
+							/>
 						</td>
-					</tr>
-				{/each}
-			</tbody>
-		{/key}
+					{/each}
+					<td>
+						<button class="btn btn-error max-w-max" on:click={_ => deleteRow(i)}> X </button>
+					</td>
+				</tr>
+			{/each}
+		</tbody>
 	</table>
 	<div>
-		<br />
-		<button class="btn" on:click={addRow}>New Row</button>
-		<br />
 		<h5>raw sheet data:</h5>
 		{JSON.stringify(sheet)}
 	</div>

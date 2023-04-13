@@ -16,7 +16,7 @@
 		while (sheetsCache.find((s) => s.uuid === uuid) !== undefined) {
 			uuid = crypto.randomUUID();
 		}
-
+		
 		activeSheetUUID.set(uuid);
 		updateSheets({
 				uuid,
@@ -35,7 +35,7 @@
 		<input
 			id="column-name"
 			type="text"
-			placeholder="New Column"
+			placeholder="New Sheet"
 			class="input input-bordered max-w-xs w-full"
 			bind:value={sheetName}
 		/>
