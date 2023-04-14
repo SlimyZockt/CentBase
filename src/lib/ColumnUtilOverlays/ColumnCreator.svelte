@@ -1,6 +1,6 @@
 <script lang="ts">
-	import FieldContainer from './FieldContainer.svelte';
-	import Input from './Input.svelte';
+	import FieldContainer from '../FieldContainer.svelte';
+	import Input from '../Input.svelte';
 	import {
 		typeSchema,
 		COLUMN_TYPES_KEYS,
@@ -9,11 +9,11 @@
 		getCurrentSheet,
 		updateSheets
 
-	} from '../stores/TableStore';
-	import { configuratorConfig, isOverlayOpen } from '../stores/OverlayStore';
+	} from '../../stores/TableStore';
+	import { configuratorConfig, isOverlayOpen } from '../../stores/OverlayStore';
 	import { get } from 'svelte/store';
 	import { has, fromRecord } from 'fp-ts/ReadonlyRecord';
-	import type { ConfigType, ColumnValueTypes, Column, ColumnTypes } from '../stores/TableStore';
+	import type { ConfigType, ColumnValueTypes, Column, ColumnTypes } from '../../stores/TableStore';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const CONFIG_TEMPLATE = fromRecord(get(defaultConfig));
@@ -23,7 +23,6 @@
 		has(type, CONFIG_TEMPLATE) ? CONFIG_TEMPLATE[type] : undefined;
 
 	let columnCount = 0;
-	let configurationMode: 'edit' | 'create' = 'create';
 
 	let value: ColumnValueTypes;
 	let enumValue: string;
@@ -152,18 +151,14 @@
 	};
 
 	configuratorConfig.subscribe((val) => {
-		if (val === undefined) {
-			configurationMode = 'create';
-			return;
-		}
+		if (val === undefined) return;
 		changeConfigType(val.config, val.type);
 		columnName = val.name;
 		columnData = val;
-		configurationMode = 'edit';
 	});
 
 	isOverlayOpen.subscribe((isOpen) => {
-		if (isOpen == true) return;
+		if (isOpen === true) return;
 		columnName = '';
 		columnData = {} as Column;
 		columnType = 'Int';
@@ -197,14 +192,12 @@
 	</label>
 	<br />
 	<label class="input-group" for="column-type">
-		<span class:btn-disabled={configurationMode == 'edit'}>Column Type:</span>
+		<span>Column Type:</span>
 		<select
 			id="column-type"
 			class="select select-bordered select-ghost w-full max-w-xs"
 			bind:value={columnType}
 			on:change={() => changeConfigType(undefined, columnType)}
-			disabled={configurationMode == 'edit'}
-			class:btn-disabled={configurationMode == 'edit'}
 		>
 			{#each COLUMN_TYPES_KEYS as ColumnType}
 				<option>{ColumnType}</option>
@@ -250,32 +243,22 @@
 				<Input
 					type={getInputType(con)}
 					config={configSchema}
-					on:change={(value) => updateConfig(value, con)}
+					on:change={value => updateConfig(value, con)}
 					inputValue={String(columnConfig[con])}
 				>
 					{con} :
 				</Input>
+                <Input type="checkbox" value={true} config={undefined}>
+                active
+                </Input>
 			{/each}
 		{/if}
 	{/key}
 	<br />
-
-	{#if configurationMode == 'create'}
-		<button
-			class="btn btn-primary"
-			class:btn-success={creationSuccess}
-			class:btn-disabled={!isCreationValidated}
-			on:click={createColumn}>Create</button
-		>
-	{:else}
-		<div class="inline-flex">
-			<button
-				class="btn btn-primary flex-grow"
-				class:btn-success={creationSuccess}
-				on:click={createColumn}>Edit</button
-			>
-			<div class="w-2" />
-			<button class="btn flex-grow" on:click={delateColumn}>Delete</button>
-		</div>
-	{/if}
+    <button
+        class="btn btn-primary"
+        class:btn-success={creationSuccess}
+        class:btn-disabled={!isCreationValidated}
+        on:click={createColumn}>Create</button
+    >
 </div>

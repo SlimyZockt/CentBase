@@ -42,22 +42,20 @@
 					</button>
 				{/each}
 			</div>
-			{#key sheet}
-				<Table {sheet} />
+				<Table bind:sheet={sheet} />
 				<div class="m-1 inline-grid grid-cols-[1fr_auto_auto_auto_1fr] gap-1">
 					<br/>
-					<RowCreator {sheet} count={1}>
+					<RowCreator bind:sheet={sheet} count={1}>
 						Add Row
 					</RowCreator>
-					<RowCreator {sheet} count={5}>
+					<RowCreator bind:sheet={sheet} count={5}>
 						Add 5 Rows
 					</RowCreator>
-					<RowCreator {sheet} count={10}>
+					<RowCreator bind:sheet={sheet} count={10}>
 						Add 10 Rows
 					</RowCreator>
 					<br/>
 				</div>
-			{/key}
 		{:else}
 			<div class="hero min-h-full">
 				<p class="text-center text-base text-base-content ">missing sheet</p>
