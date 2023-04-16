@@ -127,8 +127,9 @@
 	$: validateInput(inputValue, checked);
 </script>
 
-{#if type == 'checkbox'}
-	<label for=".input"><slot /></label>
+<div class="inline-flex justify-center items-center p-1">
+	<label for=".input" class="p-2"><slot /> </label>
+	{#if type == 'checkbox'}
 	<input
 		id="inputLabel"
 		{...config}
@@ -137,21 +138,21 @@
 		type="checkbox"
 		bind:checked
 		use:setType
-	/>
-{:else if type == 'enum' && config != undefined && 'possibleVal' in config}
-	<select class="select w-full max-w-xs input-bordered bg-base-200">
+		/>
+		{:else if type == 'enum' && config != undefined && 'possibleVal' in config}
+		<select class="select w-full max-w-xs input-bordered bg-base-200">
 		{#each config.possibleVal as v}
-			<option>{v}</option>
+		<option>{v}</option>
 		{/each}
 	</select>
-{:else}
-	<label for=".input"><slot /></label>
+	{:else}
 	<input
-		id="inputLabel"
-		{...config}
+	id="inputLabel"
+	{...config}
 		class={`input-bordered bg-base-200 ${style}`}
 		class:input-error={!validate}
 		bind:value={inputValue}
 		use:setType
-	/>
-{/if}
+		/>
+		{/if}
+</div>

@@ -239,19 +239,22 @@
 				</div>
 			{/if}
 		{:else}
+		<div class="inline-grid grid-cols-[1fr_auto]">
+			<p>Settings</p>
+			<p>Disabled</p>
 			{#each configKeys as con}
 				<Input
-					type={getInputType(con)}
-					config={configSchema}
-					on:change={value => updateConfig(value, con)}
-					inputValue={String(columnConfig[con])}
+				type={getInputType(con)}
+				config={configSchema}
+				on:change={value => updateConfig(value, con)}
+				inputValue={String(columnConfig[con])}
 				>
-					{con} :
+				{con}:
 				</Input>
                 <Input type="checkbox" value={true} config={undefined}>
-                active
                 </Input>
-			{/each}
+				{/each}
+		</div>
 		{/if}
 	{/key}
 	<br />
