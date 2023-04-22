@@ -143,6 +143,8 @@ type List = Col[];
 type UniqueProperty = Col[];
 type DataTypes = BaseTypes | List | UniqueProperty;
 
+type key = keyof BaseTypes;
+// impl Zod Enum base Type
 
 type R0W = {
     id: number
