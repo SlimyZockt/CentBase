@@ -5,6 +5,7 @@
 	import type { ColumnDef, TableOptions } from '@tanstack/svelte-table';
 	import { writable } from 'svelte/store';
 	import TableHeader from './TableHeader.svelte';
+	import FieldContainer from './FieldContainer.svelte';
 
 	export let sheet: Sheet;
 
@@ -49,10 +50,7 @@
 					{#each headerGroup.headers as header}
 						<th colSpan={header.colSpan} class="">
 							{#if !header.isPlaceholder}
-								<TableHeader columnUUID={header.column.columnDef.id}>
-									<svelte:component
-										this={flexRender(header.column.columnDef.header, header.getContext())}
-									/>
+								<TableHeader column={sheet.columns.find(c => c.uuid === header.column.columnDef.id)}>
 								</TableHeader>
 							{/if}
 						</th>
@@ -68,12 +66,16 @@
 				<tr>
 					{#each row.getVisibleCells() as cell}
 						<td>
-							<svelte:component
+							<FieldContainer
+								columnUUID={cell.column.columnDef.id}
+								rowId={i}
+							/>
+							<!-- <svelte:component
 								this={flexRender(cell.column.columnDef.cell, cell.getContext())}
 								columnUUID={cell.column.columnDef.id}
 								rowId={i}
 								type={cell.column.columnDef.meta?.type}
-							/>
+							/> -->
 						</td>
 					{/each}
 					<td>

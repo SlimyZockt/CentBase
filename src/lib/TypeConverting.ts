@@ -2,7 +2,8 @@ import type { ColumnTypes } from "src/stores/TableStore";
 
 
 
-export const convertIntoInputType = (type: ColumnTypes) => {
+export const convertIntoInputType = (type: ColumnTypes | undefined) => {
+    if (type === undefined) return "number";
     const COMPONENTS = {
         'Int': 'number',
         'Float': 'number',

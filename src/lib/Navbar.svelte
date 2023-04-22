@@ -21,7 +21,7 @@
 				</button>
 			</li>
 			<li>
-				<button on:click={() => openColumnCreator()} class="btn-accent text-neutral mx-1 btn">
+				<button on:click={openColumnCreator} class="btn-accent text-neutral mx-1 btn">
 					new Column
 				</button>
 			</li>

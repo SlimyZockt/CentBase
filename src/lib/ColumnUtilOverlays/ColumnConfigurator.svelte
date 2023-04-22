@@ -74,10 +74,7 @@
 			accessorKey: columnName,
 			id: newUuid,
 			header: columnName,
-			cell: (info) => FieldContainer,
-			meta: {
-				type: columnType
-			}
+			cell: (info) => info,
 		};
 
 		sheet.columnDef.push(newColumnDef);

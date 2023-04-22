@@ -3,12 +3,12 @@
   import type {ColumnTypes, ColumnValueTypes, Row  } from "../stores/TableStore";
 	import Input from "./Input.svelte";
 	import { convertIntoInputType } from "./TypeConverting";
-  export let type: ColumnTypes;
+
   export let rowId: number;
-  export let columnUUID: string;
+  export let columnUUID: string | undefined;
 
   let sheet = getCurrentSheet();
-  
+
   let column = sheet?.columns.find(c => c.uuid == columnUUID);
 
   let row = sheet?.rows.find(r => r.id == rowId);
@@ -26,7 +26,7 @@
 
 
     let rowsCopy = sheet?.rows.map((r) => {
-      if (columnUUID in r.data && row !== undefined) {
+      if (columnUUID !== undefined && columnUUID in r.data && row !== undefined) {
         return row;
       }
       return r;
@@ -43,5 +43,5 @@
 </script>
 
 <div class="flex justify-center">
-  <Input type={convertIntoInputType(type)} config={CONFIG} inputValue={String(data)} on:change={e => updateData(e.detail)} checked={Boolean(data)}></Input>
+  <Input type={convertIntoInputType(column?.type)} config={CONFIG} inputValue={String(data)} on:change={e => updateData(e.detail)} checked={Boolean(data)}></Input>
 </div>

@@ -29,8 +29,9 @@
 
 <div class="min-h-screen grid grid-rows-[auto_1fr_auto]">
 	<Navbar />
-	<div class="bg-base-200 grid grid-rows-[auto_1fr_auto] ">
+	<div class="bg-base-200" class:hero={$sheets.length == 0} >
 		{#if $sheets.length > 0}
+		<div class="grid grid-rows-[auto_1fr_auto] min-h-full">
 			<div class="tabs bg-neutral flex justify-center max-h-fit">
 				{#each $sheets as sheet}
 					<!-- svelte-ignore a11y-invalid-attribute -->
@@ -42,24 +43,23 @@
 					</button>
 				{/each}
 			</div>
-				<Table bind:sheet={sheet} />
-				<div class="m-1 inline-grid grid-cols-[1fr_auto_auto_auto_1fr] gap-1">
-					<br/>
-					<RowCreator bind:sheet={sheet} count={1}>
-						Add Row
-					</RowCreator>
-					<RowCreator bind:sheet={sheet} count={5}>
-						Add 5 Rows
-					</RowCreator>
-					<RowCreator bind:sheet={sheet} count={10}>
-						Add 10 Rows
-					</RowCreator>
-					<br/>
-				</div>
-		{:else}
-			<div class="hero min-h-full">
-				<p class="text-center text-base text-base-content ">missing sheet</p>
+			<Table bind:sheet={sheet} />
+			<div class="m-1 inline-grid grid-cols-[1fr_auto_auto_auto_1fr] gap-1">
+				<br/>
+				<RowCreator bind:sheet={sheet} count={1}>
+					Add Row
+				</RowCreator>
+				<RowCreator bind:sheet={sheet} count={5}>
+					Add 5 Rows
+				</RowCreator>
+				<RowCreator bind:sheet={sheet} count={10}>
+					Add 10 Rows
+				</RowCreator>
+				<br/>
 			</div>
+		</div>
+		{:else}
+			<p class="text-center text-base text-base-content ">sheet missing</p>
 		{/if}
 	</div>
 	<Footer />

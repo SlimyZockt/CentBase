@@ -70,13 +70,10 @@
 		}
 
 		let newColumnDef: ColumnDef<{ [key: string]: ColumnValueTypes }> = {
-			accessorKey: columnName,
+			accessorKey: newUuid,
 			id: newUuid,
-			header: columnName,
-			cell: (info) => FieldContainer,
-			meta: {
-				type: columnType
-			}
+			header: newUuid,
+			cell: (info) => FieldContainer
 		};
 
 		sheet.columnDef.push(newColumnDef);
@@ -186,7 +183,7 @@
 			id="column-name"
 			type="text"
 			placeholder="New Column"
-			class="input input-bordered max-w-xs w-full"
+			class="input input-bordered max-w-xs w-full bg-base-200"
 			bind:value={columnName}
 		/>
 	</label>
@@ -195,7 +192,7 @@
 		<span>Column Type:</span>
 		<select
 			id="column-type"
-			class="select select-bordered select-ghost w-full max-w-xs"
+			class="select select-bordered select-ghost w-full max-w-xs bg-base-200"
 			bind:value={columnType}
 			on:change={() => changeConfigType(undefined, columnType)}
 		>
@@ -239,21 +236,19 @@
 				</div>
 			{/if}
 		{:else}
-		<div class="inline-grid grid-cols-[1fr_auto]">
-			<p>Settings</p>
-			<p>Disabled</p>
+		<h2 class="font-bold">Settings</h2>
+		<div class="inline-grid grid-cols-[1fr_auto] gap-3">
+			<p></p>
+			<p class="badge">Enabled</p>
 			{#each configKeys as con}
-				<Input
-				type={getInputType(con)}
-				config={configSchema}
-				on:change={value => updateConfig(value, con)}
-				inputValue={String(columnConfig[con])}
-				>
-				{con}:
-				</Input>
-                <Input type="checkbox" value={true} config={undefined}>
-                </Input>
-				{/each}
+			<Input
+			type={getInputType(con)}
+			config={configSchema}
+			on:change={value => updateConfig(value, con)}
+			label={`${con}:`}
+			/>
+			<Input type="checkbox" checked={true} config={undefined} />
+			{/each}
 		</div>
 		{/if}
 	{/key}

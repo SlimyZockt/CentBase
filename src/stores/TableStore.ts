@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/svelte-table";
 import { get, readable, writable, type Writable } from "svelte/store";
+import type { z } from "zod";
 
 export const activeSheetUUID = writable("")
 export const sheets: Writable<Sheet[]> = writable([]);
@@ -85,3 +86,69 @@ export type Sheet = {
     columns: Column[],
     columnDef: ColumnDef<{ [key: string]: ColumnValueTypes }>[]
 }
+
+type Text = {
+    text: string,
+    validation: z.StringValidation
+}
+
+type Int = {
+    number: number
+    step: number
+    max?: number
+    min?: number
+}
+
+type Float = {
+    number: number
+    step?: number
+    max?: number
+    min?: number
+}
+type RGBColor = {
+    r: number,
+    g: number,
+    b: number,
+};
+
+type SheetReference = {
+    sheetUUID: string
+    sheetID: string
+};
+type LineReference = {
+    sheetUUID: string
+    sheetID: string
+    rowUUID: string
+    rowID: string
+};
+
+type FilePath = { path: string };
+type ImagePath = { path: string };
+
+type BaseTypes = Int | Float | Text | boolean | RGBColor | SheetReference | LineReference | FilePath | ImagePath;
+type ColTypes = "Int" | "Float" | "Text" | "boolean" | "RGBColor" | "SheetReference" | "LineReference" | "FilePath" | "ImagePath" | "List" | "UniqueProperty";
+
+
+type Col = {
+    id: number
+    uuid: string
+    name: string
+    type: ColTypes;
+    config?: ConfigType
+}
+
+
+
+type List = Col[];
+type UniqueProperty = Col[];
+type DataTypes = BaseTypes | List | UniqueProperty;
+
+
+type R0W = {
+    id: number
+    uuid: string
+    data: {
+        [key: string]: DataTypes
+    }
+}
+
