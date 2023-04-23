@@ -2,8 +2,6 @@
 	import FieldContainer from '../FieldContainer.svelte';
 	import Input from '../Input.svelte';
 	import {
-		typeSchema,
-		COLUMN_TYPES_KEYS,
 		defaultConfig,
 		sheets,
 		getCurrentSheet,
@@ -12,7 +10,7 @@
 	import { configuratorConfig, isOverlayOpen } from '../../stores/OverlayStore';
 	import { get } from 'svelte/store';
 	import { has, fromRecord } from 'fp-ts/ReadonlyRecord';
-	import type { ConfigType, ColumnValueTypes, Column, ColumnTypes } from '../../stores/TableStore';
+	import type { ConfigType, DataTypes, Column, ColumnTypes } from '../../stores/TableStore';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const CONFIG_TEMPLATE = fromRecord(get(defaultConfig));

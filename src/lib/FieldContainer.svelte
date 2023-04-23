@@ -1,6 +1,6 @@
 <script lang="ts">
-  import {getCurrentSheet, typeSchema, activeSheetUUID, updateSheets } from "../stores/TableStore";
-  import type {ColumnTypes, ColumnValueTypes, Row  } from "../stores/TableStore";
+  import {getCurrentSheet, activeSheetUUID, updateSheets } from "../stores/TableStore";
+  import type {ColumnTypes, DataTypes, Row  } from "../stores/TableStore";
 	import Input from "./Input.svelte";
 	import { convertIntoInputType } from "./TypeConverting";
 
@@ -14,11 +14,11 @@
   let row = sheet?.rows.find(r => r.id == rowId);
 
   // let data = row.data[columnId];
-  let data: ColumnValueTypes | undefined = column === undefined ? undefined : row?.data[column?.name];
+  let data: DataTypes | undefined = column === undefined ? undefined : row?.data[column?.name];
 
   const CONFIG = column === undefined ? undefined: column.config;
 
-  const updateData = (data: ColumnValueTypes | undefined) => {
+  const updateData = (data: DataTypes | undefined) => {
     let row = sheet?.rows.find(r => r.id == rowId);
 
     if (data === undefined || column === undefined || row === undefined) return;

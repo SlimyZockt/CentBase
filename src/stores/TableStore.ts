@@ -1,7 +1,6 @@
-import { TEMP } from "$env/static/private";
 import type { ColumnDef } from "@tanstack/svelte-table";
 import { get, readable, writable, type Writable } from "svelte/store";
-import { string, z } from "zod";
+import { z } from "zod";
 
 export const activeSheetUUID = writable("")
 export const sheets: Writable<Sheet[]> = writable([]);
@@ -52,11 +51,9 @@ const DEFAULT_CONFIG = {
 
 }
 
-export const typeSchema = readable(TYPE_SCHEMA)
 export const defaultConfig = readable(DEFAULT_CONFIG)
 
 
-export const COLUMN_TYPES_KEYS = Object.keys(TYPE_SCHEMA) as Array<keyof typeof TYPE_SCHEMA>;
 export type ConfigType = typeof DEFAULT_CONFIG[keyof typeof DEFAULT_CONFIG];
 
 export type Sheet = {
@@ -68,21 +65,21 @@ export type Sheet = {
 }
 
 const TEXT = z.object({
-    Text: z.string(),
+    Text: z.string().default(""),
 });
 
 const INT = z.object({
-        Int: z.object({
-            number: z.number().int(),
-            step: z.number(),
-            max: z.number().optional(),
-            min: z.number().optional(),
-        })
-    });
+    Int: z.object({
+        number: z.number().int().default(0),
+        step: z.number().optional(),
+        max: z.number().optional(),
+        min: z.number().optional(),
+    })
+});
 
 const FLOAT = z.object({
     Float: z.object({
-        number: z.number().int(),
+        number: z.number().int().default(0),
         step: z.number(),
         max: z.number().optional(),
         min: z.number().optional(),
@@ -91,34 +88,37 @@ const FLOAT = z.object({
 
 const COLOR_RGB = z.object({
     Color_RGB: z.object({
-    r: z.number(),
-    g: z.number(),
-    b: z.number(),
-})
+        r: z.number().min(0).max(255).default(0),
+        g: z.number().min(0).max(255).default(0),
+        b: z.number().min(0).max(255).default(0),
+    })
 });
 
 const SHEET_REFERENCE = z.object({
     SheetReference: z.object({
-        sheetUUID: z.string().uuid(),
-        sheetID: z.string(),
+        sheetUUID: z.string().uuid().default(""),
+        sheetID: z.string().default(""),
     })
 });
 const LINE_REFERENCE = z.object({
     LineReference: z.object({
-    sheetUUID: z.string().uuid(),
-    sheetID: z.string(),
-    rowUUID: z.string().uuid(),
-    rowID: z.string(),
+        sheetUUID: z.string().uuid().default(""),
+        sheetID: z.string().default(""),
+        rowUUID: z.string().uuid().default(""),
+        rowID: z.string().default(""),
+    })
 })
-})
 
-const FILE_PATH = z.object({ FilePath: z.string().url() });
-const IMAGE_PATH = z.object({ ImagePath: z.string().url() });
+const FILE_PATH = z.object({ FilePath: z.string().url().default("") });
+const IMAGE_PATH = z.object({ ImagePath: z.string().url().default("") });
 
-const DATE = z.object({ Date: z.date() });
+const DATE = z.object({ Date: z.date().default(new Date()) });
 
 
-const ColumnSchema = z.union([
+const ENUM = z.object({ Enum: z.enum([""]) });
+
+
+export const ColumnSchema = z.union([
     TEXT,
     INT,
     FLOAT,
@@ -127,7 +127,8 @@ const ColumnSchema = z.union([
     LINE_REFERENCE,
     FILE_PATH,
     IMAGE_PATH,
-    DATE
+    DATE,
+    ENUM
 ])
 
 type ColumnSchemaType = z.infer<typeof ColumnSchema>
@@ -140,7 +141,8 @@ type ValueOfObject<T, K extends KeysOfUnion<T>> =
     : undefined
     : never
 
-type ColumnTypes = KeysOfUnion<ColumnSchemaType>
+
+export type ColumnTypes = KeysOfUnion<ColumnSchemaType>
 type BaseTypes = ValueOfObject<ColumnSchemaType, ColumnTypes>
 
 export type Column = {
@@ -155,11 +157,11 @@ export type Column = {
 
 type List = Column[];
 type UniqueProperty = Column[];
-type DataTypes = BaseTypes | List | UniqueProperty;
+export type DataTypes = BaseTypes | List | UniqueProperty;
 
 // impl Zod Enum base Type
 
-type Row = {
+export type Row = {
     id: number
     uuid: string
     data: {

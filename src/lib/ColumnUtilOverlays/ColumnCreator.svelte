@@ -2,8 +2,7 @@
 	import FieldContainer from '../FieldContainer.svelte';
 	import Input from '../Input.svelte';
 	import {
-		typeSchema,
-		COLUMN_TYPES_KEYS,
+		ColumnSchema,
 		defaultConfig,
 		sheets,
 		getCurrentSheet,
@@ -13,7 +12,7 @@
 	import { configuratorConfig, isOverlayOpen } from '../../stores/OverlayStore';
 	import { get } from 'svelte/store';
 	import { has, fromRecord } from 'fp-ts/ReadonlyRecord';
-	import type { ConfigType, ColumnValueTypes, Column, ColumnTypes } from '../../stores/TableStore';
+	import type { ConfigType, DataTypes, Column, ColumnTypes } from '../../stores/TableStore';
 	import type { ColumnDef } from '@tanstack/svelte-table';
 
 	const CONFIG_TEMPLATE = fromRecord(get(defaultConfig));
@@ -24,7 +23,7 @@
 
 	let columnCount = 0;
 
-	let value: ColumnValueTypes;
+	let value: DataTypes;
 	let enumValue: string;
 
 	let columnData: Column;
@@ -44,6 +43,8 @@
 	let temp: ConfigType | {} = configSchema == undefined ? {} : configSchema;
 	let configKeys = getKeys(temp);
 	type ConfigKey = (typeof configKeys)[0];
+
+	const availableTypes = ["Int" , "Float" , "Enum" , "Text" , "Color" , "Sheet Reference" , "Line Reference" , "File Path" , "Image Path" , "Date"] as const;
 
 	const getInputType = (configName: ConfigKey) => {
 		switch (configName) {
@@ -69,7 +70,7 @@
 			newUuid = crypto.randomUUID();
 		}
 
-		let newColumnDef: ColumnDef<{ [key: string]: ColumnValueTypes }> = {
+		let newColumnDef: ColumnDef<{ [key: string]: DataTypes }> = {
 			accessorKey: newUuid,
 			id: newUuid,
 			header: newUuid,
@@ -196,7 +197,7 @@
 			bind:value={columnType}
 			on:change={() => changeConfigType(undefined, columnType)}
 		>
-			{#each COLUMN_TYPES_KEYS as ColumnType}
+			{#each availableTypes as ColumnType}
 				<option>{ColumnType}</option>
 			{/each}
 		</select>
