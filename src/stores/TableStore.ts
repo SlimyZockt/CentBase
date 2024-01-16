@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/svelte-table";
+import type { ReadonlyRecord } from "fp-ts/lib/ReadonlyRecord";
 import { get, readable, writable, type Writable } from "svelte/store";
-import { z } from "zod";
+import type { z } from "zod";
 
 export const activeSheetUUID = writable("")
 export const sheets: Writable<Sheet[]> = writable([]);
@@ -13,23 +14,6 @@ export const updateSheets = (sheet: Sheet) => {
 export const getCurrentSheet = () => {
     return get(sheets).find(s => s.uuid === get(activeSheetUUID));
 };
-
-const TYPE_SCHEMA = {
-    Int: 0,
-    Float: 0,
-    Bool: false,
-    String: "",
-    Enum: "" as const,
-    File: "",
-    Image: "",
-    Color: {
-        r: 0,
-        g: 0,
-        b: 0,
-    },
-    List: [],
-    Property: [],
-}
 
 const DEFAULT_CONFIG = {
     Int: {
@@ -53,7 +37,6 @@ const DEFAULT_CONFIG = {
 
 export const defaultConfig = readable(DEFAULT_CONFIG)
 
-
 export type ConfigType = typeof DEFAULT_CONFIG[keyof typeof DEFAULT_CONFIG];
 
 export type Sheet = {
@@ -64,102 +47,140 @@ export type Sheet = {
     columnDef: ColumnDef<{ [key: string]: DataTypes }>[]
 }
 
-const TEXT = z.object({
-    Text: z.string().default(""),
-});
-
-const INT = z.object({
-    Int: z.object({
-        number: z.number().int().default(0),
-        step: z.number().optional(),
-        max: z.number().optional(),
-        min: z.number().optional(),
-    })
-});
-
-const FLOAT = z.object({
-    Float: z.object({
-        number: z.number().int().default(0),
-        step: z.number(),
-        max: z.number().optional(),
-        min: z.number().optional(),
-    })
-});
-
-const COLOR_RGB = z.object({
-    Color_RGB: z.object({
-        r: z.number().min(0).max(255).default(0),
-        g: z.number().min(0).max(255).default(0),
-        b: z.number().min(0).max(255).default(0),
-    })
-});
-
-const SHEET_REFERENCE = z.object({
-    SheetReference: z.object({
-        sheetUUID: z.string().uuid().default(""),
-        sheetID: z.string().default(""),
-    })
-});
-const LINE_REFERENCE = z.object({
-    LineReference: z.object({
-        sheetUUID: z.string().uuid().default(""),
-        sheetID: z.string().default(""),
-        rowUUID: z.string().uuid().default(""),
-        rowID: z.string().default(""),
-    })
-})
-
-const FILE_PATH = z.object({ FilePath: z.string().url().default("") });
-const IMAGE_PATH = z.object({ ImagePath: z.string().url().default("") });
-
-const DATE = z.object({ Date: z.date().default(new Date()) });
+type StringLiteral<T> = T extends string ? string extends T ? never : T : never;
 
 
-const ENUM = z.object({ Enum: z.enum([""]) });
+type Type<T, X extends string> = {
+    [x in StringLiteral<X>]: {
+        validation?: z.ZodType<T>,
+        readonly settings?: Readonly<TypeSetting[]>,
+        displayName?: string
+        defaultValue: T,
+    }
+};
+
+export type SheetTypes =
+    Type<string, "Text"> &
+    Type<number, "Int"> &
+    Type<number, 'Float'> &
+    Type<{ r: number, g: number, b: number }, 'ColorRGB'> &
+    Type<{ sheetUUID: string, sheetID: string }, 'SheetReference'> &
+    Type<{ sheetUUID: string, sheetID: string, rowUUID: string, rowId: string }, 'LineReference'> &
+    Type<string, 'ImagePath'> & Type<string, 'FilePath'> &
+    Type<Date, 'Date'> &
+    Type<string[], 'Enum'> &
+    Type<boolean, 'Boolean'>;
+
+type S = Readonly<Exclude<Readonly<(typeof TypeData)>[keyof SheetTypes]['settings'], undefined>>[0]
 
 
-export const ColumnSchema = z.union([
-    TEXT,
-    INT,
-    FLOAT,
-    COLOR_RGB,
-    SHEET_REFERENCE,
-    LINE_REFERENCE,
-    FILE_PATH,
-    IMAGE_PATH,
-    DATE,
-    ENUM
-])
 
-type ColumnSchemaType = z.infer<typeof ColumnSchema>
+export const TypeData: SheetTypes = {
+    Float: {
+        defaultValue: 0,
+        settings: [
+            {
+                name: 'Max',
+                inputType: 'number',
+                active: true
+            },
+            {
+                name: 'Min',
+                inputType: 'number',
+                active: true,
+            },
+            {
+                name: 'Step',
+                inputType: 'number',
+                active: true,
+            }
+        ] as const
+    },
+    Int: {
+        defaultValue: 0,
+        settings: [
+            {
+                name: 'Max',
+                inputType: 'number',
+                active: true
+            },
+            {
+                name: 'Min',
+                inputType: 'number',
+                active: true
+            },
+            {
+                name: 'Step',
+                inputType: 'number',
+                active: true
+            }
+        ] as const
+    },
+    Text: {
+        defaultValue: "",
+        settings: [
+            {
+                name: 'Regex',
+                inputType: 'text',
+                active: true,
+            }
+        ] as const
+    },
+    ColorRGB: {
+        // validation: z.object({ r: z.number(), g: z.number(), b: z.number() }),
+        defaultValue: {
+            r: 0,
+            g: 0,
+            b: 0
+        }
+    },
+    Date: {
+        defaultValue: new Date(),
+    },
+    Enum: {
+        defaultValue: [],
+    },
+    FilePath: {
+        defaultValue: ""
+    },
+    ImagePath: {
+        defaultValue: ""
+    },
+    LineReference: {
+        defaultValue: {
+            sheetUUID: "",
+            sheetID: "",
+            rowUUID: "",
+            rowId: ""
+        }
+    },
+    SheetReference: {
+        defaultValue: {
+            sheetUUID: "",
+            sheetID: ""
+        }
+    },
+    Boolean: {
+        defaultValue: false
+    }
+}
 
-type KeysOfUnion<T> = T extends T ? keyof T : never;
-type ValueOfObject<T, K extends KeysOfUnion<T>> =
-    T extends infer U
-    ? K extends keyof U
-    ? T[K]
-    : undefined
-    : never
+type BaseTypes = SheetTypes[keyof SheetTypes]['defaultValue'];
 
-
-export type ColumnTypes = KeysOfUnion<ColumnSchemaType>
-type BaseTypes = ValueOfObject<ColumnSchemaType, ColumnTypes>
+export type ColumnTypes = keyof SheetTypes;
 
 export type Column = {
     id: number
     uuid: string
     name: string
-    type: ColumnTypes;
-    config?: ConfigType
+    type: ColumnTypes
+    settingData?: SettingsData
 }
-
-
 
 type List = Column[];
 type UniqueProperty = Column[];
-export type DataTypes = BaseTypes | List | UniqueProperty;
 
-// impl Zod Enum base Type
+export type DataTypes = BaseTypes | List | UniqueProperty;
 
 export type Row = {
     id: number
@@ -168,3 +189,13 @@ export type Row = {
         [key: string]: DataTypes
     }
 }
+
+
+export type TypeSetting = {
+    readonly name: string,
+    readonly inputType: 'number' | 'text' | 'enum',
+    readonly active: boolean
+}
+
+export type Settings = { [x in ColumnTypes]?: TypeSetting[] };
+export type SettingsData = { [x: string]: number | string | boolean | string[] };

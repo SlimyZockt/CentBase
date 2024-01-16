@@ -3,16 +3,18 @@
 	import type { Column } from '../stores/TableStore';
 	import { openColumnCreator, openColumnOption } from '../stores/OverlayStore';
 
-    export let column: Column;
+	export let column: Column | undefined;
 
 </script>
 
 <button
-    on:click={() => openColumnOption(column.uuid, "EDIT_COLUMN")}
+    on:click={() => {if (column !== undefined) openColumnOption(column.uuid, "EDIT_COLUMN")}}
 	class="btn min-w-max w-full flex justify-between"
 >
 	<p>
-		{column.name}
+		{#if column !== undefined}
+			{column.name}
+		{/if}
 	</p>
 	<p class="px-1">⚙️</p>
 </button>

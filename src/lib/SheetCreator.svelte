@@ -7,6 +7,7 @@
 	$: validation = ((id: string) => {
 		console.log(sheetName);
 		let sheetsCache = get(sheets);
+		if (id.length === 0) return;
 		return sheetsCache.find((s) => s.id === id) === undefined ? true : false;
 	})(sheetName);
 

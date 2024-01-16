@@ -33,7 +33,9 @@
 		{#if $sheets.length > 0}
 		<div class="grid grid-rows-[auto_1fr_auto] min-h-full">
 			<div class="tabs bg-neutral flex justify-center max-h-fit">
-				{#each $sheets as sheet}
+				{#each $sheets.sort((a, b) => {
+						return a.id.localeCompare(b.id);
+					}) as sheet}
 					<!-- svelte-ignore a11y-invalid-attribute -->
 					<button
 						class="tab tab-bordered"

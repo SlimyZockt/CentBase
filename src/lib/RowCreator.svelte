@@ -1,16 +1,24 @@
 <script lang="ts">
-	import { updateSheets, type Row, type Sheet, type DataTypes } from './../stores/TableStore';
-	import { ColumnSchema } from './../stores/TableStore';
+	import { updateSheets, TypeData, type Row, type Sheet, type DataTypes } from './../stores/TableStore';
 
 	export let sheet: Sheet;
 	export let count: number;
 
+	type UnionToIntersection<U> =
+	(U extends any ? (k: U) => void : never) extends ((k: infer I) => void) ? I : never
+
+
 	const addRow = () => {
-		const columnNames = sheet.columns.map((column) => column.name);
 
-		if (columnNames.length === 0) return;
+		const ROW =  sheet.columns.map((column) => {
+			return [column.name, TypeData[column.type].defaultValue] as const;
+		})
 
-		const data = Object.fromEntries(columnNames.map((name) => [name, undefined]));
+		console.log(ROW);
+
+		if (ROW.length === 0) return;
+
+		const data = Object.fromEntries(ROW);
 
 		for (let index = 0; index < count; index++) {
 			let newUuid = crypto.randomUUID();

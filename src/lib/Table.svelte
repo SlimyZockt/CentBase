@@ -1,23 +1,24 @@
 <script lang="ts">
 	import { createSvelteTable, flexRender, getCoreRowModel } from '@tanstack/svelte-table';
-	import { type Sheet, updateSheets } from '../stores/TableStore';
-	import type { ColumnTypes, ColumnValueTypes } from '../stores/TableStore';
+	import { type Sheet, updateSheets, type DataTypes } from '../stores/TableStore';
+	import type { ColumnTypes,} from '../stores/TableStore';
 	import type { ColumnDef, TableOptions } from '@tanstack/svelte-table';
 	import { writable } from 'svelte/store';
 	import TableHeader from './TableHeader.svelte';
-	import FieldContainer from './FieldContainer.svelte';
+	import DataField from './DataField.svelte';
+	import { string } from 'zod';
 
 	export let sheet: Sheet;
 
 	let rowCount = 0;
 
-	const options = writable<TableOptions<{ [key: string]: ColumnValueTypes }>>({
+	const options = writable<TableOptions<{ [key: string]: DataTypes }>>({
 		data: sheet.rows.map((row) => row.data),
 		columns: sheet.columnDef,
 		getCoreRowModel: getCoreRowModel()
 	});
 
-	const table = createSvelteTable<{ [key: string]: ColumnValueTypes }>(options);
+	const table = createSvelteTable<{ [key: string]: DataTypes }>(options);
 
 	const deleteRow = (id: number) => {
 		if (sheet === undefined) return;
@@ -37,8 +38,6 @@
 			columns: Object.create(sheet.columnDef)
 		}));
 	};
-
-
 	$: rerender(sheet);
 </script>
 
@@ -50,8 +49,9 @@
 					{#each headerGroup.headers as header}
 						<th colSpan={header.colSpan} class="">
 							{#if !header.isPlaceholder}
-								<TableHeader column={sheet.columns.find(c => c.uuid === header.column.columnDef.id)}>
-								</TableHeader>
+								<TableHeader
+									column={sheet.columns.find((c) => c.uuid === header.column.columnDef.id)}
+								/>
 							{/if}
 						</th>
 					{/each}
@@ -66,20 +66,11 @@
 				<tr>
 					{#each row.getVisibleCells() as cell}
 						<td>
-							<FieldContainer
-								columnUUID={cell.column.columnDef.id}
-								rowId={i}
-							/>
-							<!-- <svelte:component
-								this={flexRender(cell.column.columnDef.cell, cell.getContext())}
-								columnUUID={cell.column.columnDef.id}
-								rowId={i}
-								type={cell.column.columnDef.meta?.type}
-							/> -->
+							<DataField columnUUID={cell.column.columnDef.id} rowId={i} data={$options.data[i][cell.column.columnDef.accessorKey]}/>
 						</td>
 					{/each}
 					<td>
-						<button class="btn btn-error max-w-max" on:click={(_) => deleteRow(i)}> X </button>
+						<button class="btn btn-error max-w-max" on:click={_ => deleteRow(i)}> X </button>
 					</td>
 				</tr>
 			{/each}

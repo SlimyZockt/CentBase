@@ -1,5 +1,4 @@
 <script lang="ts">
-	import FieldContainer from '../FieldContainer.svelte';
 	import Input from '../Input.svelte';
 	import {
 		defaultConfig,
